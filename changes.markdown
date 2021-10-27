@@ -5,6 +5,7 @@
 - [X] - m_whois: Add hide_uids_in_whois option, default to "YES"
 - [X] - m_webirc: fixed broken module
 - [X] - updating SSL required for OPER
+- [X] - Improveed static client quit and made a few changes
 
 
 
