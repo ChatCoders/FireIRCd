@@ -5,7 +5,6 @@ on:
     branches: 
       - master
     paths-ignore:
-      - 'doc/oper-guide/**'
       - 'CREDITS'
       - 'LICENSE'
       - 'NEWS.md'
@@ -14,7 +13,6 @@ on:
     branches:
       - master
     paths-ignore:
-      - 'doc/oper-guide/**'
       - 'CREDITS'
       - 'LICENSE'
       - 'NEWS.md'
@@ -35,8 +33,6 @@ jobs:
           - gcc-6 # Debian 9 (OFTC)
           - gcc-7
           - gcc-8
-          - clang-7
-          - clang-8
         include:
           - os: ubuntu-20.04
             compiler: gcc-10
@@ -60,10 +56,8 @@ jobs:
           # EOF
     - uses: actions/checkout@v2
     - name: configure
-      run: CFLAGS="-Werror -Wno-unused-value -Wno-unused-parameter" ./configure --with-shared-sqlite
+      run: ./configure --with-shared-sqlite
     - name: make
       run: make -j2
-    - name: make check
-      run: make check
     - name: make install
       run: make install
