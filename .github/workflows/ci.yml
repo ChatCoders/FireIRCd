@@ -53,7 +53,6 @@ jobs:
           automake \
           autoconf \
           libtool \
-	  flex \
 	  bison \
           libsqlite3-dev \
           libhyperscan-dev \
