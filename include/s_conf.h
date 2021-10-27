@@ -151,6 +151,7 @@ struct config_file_entry
 	char *kline_reason;
         int static_parts;
 	char *static_part_reason;
+	int hide_uids_in_whois;
 
 	char *identifyservice;
 	char *identifycommand;

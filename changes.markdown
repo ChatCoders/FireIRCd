@@ -2,6 +2,8 @@
 
 ## Changes since Version 1.1.3
 
+- [X] - m_whois: Add hide_uids_in_whois option, default to "YES"
+
 
 ## Changes since Version 1.1.2
 
