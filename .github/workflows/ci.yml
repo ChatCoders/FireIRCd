@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: 
+      - main
+    paths-ignore:
+      - 'doc/oper-guide/**'
+      - 'CREDITS'
+      - 'LICENSE'
+      - 'NEWS.md'
+      - 'README.md'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - 'doc/oper-guide/**'
+      - 'CREDITS'
+      - 'LICENSE'
+      - 'NEWS.md'
+      - 'README.md'
+
+jobs:
+  linux:
+    name: Linux
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-18.04
+        compiler:
+          - gcc-6 # Debian 9 (OFTC)
+          - gcc-7
+          - gcc-8
+          - clang-7
+          - clang-8
+        include:
+          - os: ubuntu-20.04
+            compiler: gcc-10
+
+    env:
+      CC: ${{ matrix.compiler }}
+
+    steps:
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends \
+          ${CC} \
+          automake \
+          autoconf \
+          libtool \
+	  flex \
+	  bison \
+          libsqlite3-dev \
+          libhyperscan-dev \
+          # EOF
+    - uses: actions/checkout@v2
+    - name: configure
+      run: CFLAGS="-Werror -Wno-unused-value -Wno-unused-parameter" ./configure --with-shared-sqlite
+    - name: make
+      run: make -j2
+    - name: make check
+      run: make check
+    - name: make install
+      run: make install
