@@ -1,5 +1,5 @@
 # sIRCd
-[![Build Status](https://travis-ci.org/CustomIRCd/sIRCd.svg?branch=master)](https://travis-ci.org/CustomIRCd/sIRCd)
+[![CI](https://github.com/CustomIRCd/sIRCd/actions/workflows/ci.yml/badge.svg)](https://github.com/CustomIRCd/sIRCd/actions/workflows/ci.yml)
 
 **sIRCd** is a high performance, lightweight, and scalable
 IRC daemon. It is a fork of the now-defunct ShadowIRCD and seeks to continue in
