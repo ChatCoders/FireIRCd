@@ -3,6 +3,7 @@
 ## Changes since Version 1.1.3
 
 - [X] - m_whois: Add hide_uids_in_whois option, default to "YES"
+- [X] - m_webirc: fixed broken module
 
 
 ## Changes since Version 1.1.2
