@@ -6,6 +6,7 @@
 - [X] - m_webirc: fixed broken module
 - [X] - updating SSL required for OPER
 - [X] - Improveed static client quit and made a few changes
+- [X] - m_webirc: const-correctness
 
 
 
