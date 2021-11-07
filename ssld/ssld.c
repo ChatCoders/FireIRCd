@@ -171,6 +171,7 @@ static void conn_plain_read_shutdown_cb(rb_fde_t *fd, void *data);
 static void mod_cmd_write_queue(mod_ctl_t * ctl, const void *data, size_t len);
 static const char *remote_closed = "Remote host closed the connection";
 static int ssl_ok;
+static int certfp_method = RB_SSL_CERTFP_METH_SHA1;
 #ifdef HAVE_LIBZ
 static int zlib_ok = 1;
 #else
@@ -642,13 +643,16 @@ static void
 ssl_process_accept_cb(rb_fde_t *F, int status, struct sockaddr *addr, rb_socklen_t len, void *data)
 {
     conn_t *conn = data;
-    uint8_t buf[5 + RB_SSL_CERTFP_LEN];
+    uint8_t buf[9 + RB_SSL_CERTFP_LEN];
 
     if(status == RB_OK) {
-        if(rb_get_ssl_certfp(F, &buf[5])) {
+        int len = rb_get_ssl_certfp(F, &buf[5], certfp_method);
+		if(len)
+	 {
+	    lrb_assert(len <= RB_SSL_CERTFP_LEN);
             buf[0] = 'F';
             int32_to_buf(&buf[1], conn->id);
-            mod_cmd_write_queue(conn->ctl, buf, sizeof buf);
+            mod_cmd_write_queue(conn->ctl, buf, 5 + len);
         }
         conn_mod_read_cb(conn->mod_fd, conn);
         conn_plain_read_cb(conn->plain_fd, conn);
@@ -663,13 +667,16 @@ static void
 ssl_process_connect_cb(rb_fde_t *F, int status, void *data)
 {
     conn_t *conn = data;
-    uint8_t buf[5 + RB_SSL_CERTFP_LEN];
+    uint8_t buf[9 + RB_SSL_CERTFP_LEN];
 
     if(status == RB_OK) {
-        if(rb_get_ssl_certfp(F, &buf[5])) {
+        int len = rb_get_ssl_certfp(F, &buf[5], certfp_method);
+		if(len)
+	 {
+	   lrb_assert(len <= RB_SSL_CERTFP_LEN);
             buf[0] = 'F';
             int32_to_buf(&buf[1], conn->id);
-            mod_cmd_write_queue(conn->ctl, buf, sizeof buf);
+            mod_cmd_write_queue(conn->ctl, buf, 5 + len);
         }
         conn_mod_read_cb(conn->mod_fd, conn);
         conn_plain_read_cb(conn->plain_fd, conn);
@@ -715,6 +722,13 @@ ssl_process_accept(mod_ctl_t * ctl, mod_ctl_buf_t * ctlb)
 
     rb_ssl_start_accepted(ctlb->F[0], ssl_process_accept_cb, conn, 10);
 }
+
+static void
+ssl_change_certfp_method(mod_ctl_t * ctl, mod_ctl_buf_t * ctlb)
+{
+	certfp_method = buf_to_int32(&ctlb->buf[1]);
+}
+
 
 static void
 ssl_process_connect(mod_ctl_t * ctl, mod_ctl_buf_t * ctlb)
@@ -950,6 +964,17 @@ mod_process_cmd_recv(mod_ctl_t * ctl)
             ssl_process_connect(ctl, ctl_buf);
             break;
         }
+
+	case 'F':
+			{
+				if (ctl_buf->nfds != 2 || ctl_buf->buflen != 5)
+				{
+					cleanup_bad_message(ctl, ctl_buf);
+					break;
+				}
+				ssl_change_certfp_method(ctl, ctl_buf);
+				break;
+			}
 
         case 'K': {
             if(!ssl_ok) {
