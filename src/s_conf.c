@@ -696,6 +696,7 @@ set_default_conf(void)
     ConfigFileEntry.kline_with_reason = YES;
     ConfigFileEntry.warn_no_nline = YES;
     ConfigFileEntry.non_redundant_klines = YES;
+    ConfigFileEntry.custom_cloak = rb_strdup("cloaked");
     ConfigFileEntry.stats_e_disabled = NO;
     ConfigFileEntry.stats_o_oper_only = NO;
     ConfigFileEntry.stats_k_oper_only = 1;	/* masked */
@@ -1579,6 +1580,8 @@ clear_out_old_conf(void)
     /* clean out general */
     rb_free(ConfigFileEntry.kline_reason);
     ConfigFileEntry.kline_reason = NULL;
+    rb_free(ConfigFileEntry.custom_cloak);
+    ConfigFileEntry.custom_cloak = NULL;
     rb_free(ConfigFileEntry.sasl_service);
     ConfigFileEntry.sasl_service = NULL;
 
