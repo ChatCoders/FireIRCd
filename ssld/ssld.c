@@ -67,11 +67,6 @@ uint16_to_buf(uint8_t *buf, uint16_t x)
 }
 
 
-static char inbuf[READBUF_SIZE];
-#ifdef HAVE_LIBZ
-static char outbuf[READBUF_SIZE];
-#endif
-
 typedef struct _mod_ctl_buf {
     rb_dlink_node node;
     uint8_t *buf;
@@ -396,6 +391,7 @@ mod_cmd_write_queue(mod_ctl_t * ctl, const void *data, size_t len)
 static void
 common_zlib_deflate(conn_t * conn, void *buf, size_t len)
 {
+    char outbuf[READBUF_SIZE];
     int ret, have;
     z_stream *outstream = &((zlib_stream_t *) conn->stream)->outstream;
     outstream->next_in = buf;
@@ -426,6 +422,7 @@ common_zlib_deflate(conn_t * conn, void *buf, size_t len)
 static void
 common_zlib_inflate(conn_t * conn, void *buf, size_t len)
 {
+    char outbuf[READBUF_SIZE];
     int ret, have = 0;
     ((zlib_stream_t *) conn->stream)->instream.next_in = buf;
     ((zlib_stream_t *) conn->stream)->instream.avail_in = len;
@@ -477,6 +474,7 @@ plain_check_cork(conn_t * conn)
 static void
 conn_plain_read_cb(rb_fde_t *fd, void *data)
 {
+    char inbuf[READBUF_SIZE];
     conn_t *conn = data;
     int length = 0;
     if(conn == NULL)
@@ -522,6 +520,7 @@ conn_plain_read_cb(rb_fde_t *fd, void *data)
 static void
 conn_plain_read_shutdown_cb(rb_fde_t *fd, void *data)
 {
+    char inbuf[READBUF_SIZE];
     conn_t *conn = data;
     int length = 0;
 
@@ -547,6 +546,7 @@ conn_plain_read_shutdown_cb(rb_fde_t *fd, void *data)
 static void
 conn_mod_read_cb(rb_fde_t *fd, void *data)
 {
+    char inbuf[READBUF_SIZE];
     conn_t *conn = data;
     const char *err;
     int length;
@@ -1108,6 +1108,7 @@ mod_write_ctl(rb_fde_t *F, void *data)
 static void
 read_pipe_ctl(rb_fde_t *F, void *data)
 {
+    char inbuf[READBUF_SIZE];
     int retlen;
     while((retlen = rb_read(F, inbuf, sizeof(inbuf))) > 0) {
         ;;		/* we don't do anything with the pipe really, just care if the other process dies.. */
