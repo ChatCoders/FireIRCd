@@ -104,10 +104,10 @@ typedef struct _conn {
 
     rb_fde_t *mod_fd;
     rb_fde_t *plain_fd;
-    unsigned long long mod_out;
-    unsigned long long mod_in;
-    unsigned long long plain_in;
-    unsigned long long plain_out;
+    uint64_t mod_out;
+    uint64_t mod_in;
+    uint64_t plain_in;
+    uint64_t plain_out;
     uint8_t flags;
     void *stream;
 } conn_t;
@@ -786,9 +786,6 @@ process_stats(mod_ctl_t * ctl, mod_ctl_buf_t * ctlb)
 
     id = buf_to_uint32(&ctlb->buf[1]);
 
-    if(id < 0)
-        return;
-
     odata = &ctlb->buf[5];
     conn = conn_find_by_id(id);
 
@@ -796,13 +793,15 @@ process_stats(mod_ctl_t * ctl, mod_ctl_buf_t * ctlb)
         return;
 
     rb_snprintf(outstat, sizeof(outstat), "S %s %llu %llu %llu %llu", odata,
-                conn->plain_out, conn->mod_in, conn->plain_in, conn->mod_out);
+                (unsigned long long) conn->plain_out, (unsigned long long) conn->mod_in,
+                (unsigned long long) conn->plain_in, (unsigned long long) conn->mod_out);
     conn->plain_out = 0;
     conn->plain_in = 0;
     conn->mod_in = 0;
     conn->mod_out = 0;
     mod_cmd_write_queue(ctl, outstat, strlen(outstat) + 1);	/* +1 is so we send the \0 as well */
 }
+
 
 static void
 change_connid(mod_ctl_t *ctl, mod_ctl_buf_t *ctlb)
