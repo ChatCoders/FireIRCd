@@ -1591,19 +1591,18 @@ conf_set_general_oper_umodes(void *data)
 static void
 conf_set_general_certfp_method(void *data)
 {
-	char *method = data;
+    char *method = data;
 
-	if (!strcasecmp(method, "sha1"))
-		ConfigFileEntry.certfp_method = RB_SSL_CERTFP_METH_SHA1;
-	else if (!strcasecmp(method, "sha256"))
-		ConfigFileEntry.certfp_method = RB_SSL_CERTFP_METH_SHA256;
-	else if (!strcasecmp(method, "sha512"))
-		ConfigFileEntry.certfp_method = RB_SSL_CERTFP_METH_SHA512;
-	else
-	{
-		ConfigFileEntry.certfp_method = RB_SSL_CERTFP_METH_SHA1;
-		conf_report_error("Ignoring general::certfp_method -- bogus certfp method %s", method);
-	}
+    if (!strcasecmp(method, "sha1"))
+        ConfigFileEntry.certfp_method = RB_SSL_CERTFP_METH_SHA1;
+    else if (!strcasecmp(method, "sha256"))
+        ConfigFileEntry.certfp_method = RB_SSL_CERTFP_METH_SHA256;
+    else if (!strcasecmp(method, "sha512"))
+        ConfigFileEntry.certfp_method = RB_SSL_CERTFP_METH_SHA512;
+    else {
+        ConfigFileEntry.certfp_method = RB_SSL_CERTFP_METH_SHA1;
+        conf_report_error("Ignoring general::certfp_method -- bogus certfp method %s", method);
+    }
 }
 
 static void

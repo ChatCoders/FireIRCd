@@ -36,16 +36,16 @@
 static void setup_signals(void);
 static pid_t ppid;
 
-static inline int32_t
-buf_to_int32(uint8_t *buf)
+static inline uint32_t
+buf_to_uint32(uint8_t *buf)
 {
-    int32_t x;
+    uint32_t x;
     memcpy(&x, buf, sizeof(x));
     return x;
 }
 
 static inline void
-int32_to_buf(uint8_t *buf, int32_t x)
+uint32_to_buf(uint8_t *buf, uint32_t x)
 {
     memcpy(buf, &x, sizeof(x));
     return;
@@ -105,7 +105,7 @@ typedef struct _conn {
     rawbuf_head_t *modbuf_out;
     rawbuf_head_t *plainbuf_out;
 
-    int32_t id;
+    uint32_t id;
 
     rb_fde_t *mod_fd;
     rb_fde_t *plain_fd;
@@ -194,7 +194,7 @@ ssld_free(void *unused, void *ptr)
 #endif
 
 static conn_t *
-conn_find_by_id(int32_t id)
+conn_find_by_id(uint32_t id)
 {
     rb_dlink_node *ptr;
     conn_t *conn;
@@ -208,7 +208,7 @@ conn_find_by_id(int32_t id)
 }
 
 static void
-conn_add_id_hash(conn_t * conn, int32_t id)
+conn_add_id_hash(conn_t * conn, uint32_t id)
 {
     conn->id = id;
     rb_dlinkAdd(conn, &conn->node, connid_hash(id));
@@ -257,7 +257,7 @@ close_conn(conn_t * conn, int wait_plain, const char *fmt, ...)
     rb_close(conn->mod_fd);
     SetDead(conn);
 
-    if(conn->id >= 0 && !IsZipSSL(conn))
+    if(!IsZipSSL(conn))
         rb_dlinkDelete(&conn->node, connid_hash(conn->id));
 
     if(!wait_plain || fmt == NULL) {
@@ -272,7 +272,7 @@ close_conn(conn_t * conn, int wait_plain, const char *fmt, ...)
     va_end(ap);
 
     buf[0] = 'D';
-    int32_to_buf(&buf[1], conn->id);
+    uint32_to_buf(&buf[1], conn->id);
     rb_strlcpy((char *) &buf[5], reason, sizeof(buf) - 5);
     len = (strlen(reason) + 1) + 5;
     mod_cmd_write_queue(conn->ctl, buf, len);
@@ -640,22 +640,58 @@ maxconn(void)
 }
 
 static void
+ssl_send_cipher(conn_t *conn)
+{
+#if 0
+    size_t len;
+    char buf[512];
+    char cstring[256];
+    const char *p;
+    if(!IsSSL(conn))
+        return;
+
+    p = rb_ssl_get_cipher(conn->mod_fd);
+
+    if(p == NULL)
+        return;
+
+    rb_strlcpy(cstring, p, sizeof(cstring));
+
+    buf[0] = 'C';
+    uint32_to_buf(&buf[1], conn->id);
+    strcpy(&buf[5], cstring);
+    len = (strlen(cstring) + 1) + 5;
+    mod_cmd_write_queue(conn->ctl, buf, len);
+#endif
+}
+
+static void
+ssl_send_certfp(conn_t *conn)
+{
+    uint8_t buf[9 + RB_SSL_CERTFP_LEN];
+
+    int len = rb_get_ssl_certfp(conn->mod_fd, &buf[9], certfp_method);
+    if (!len)
+        return;
+
+    lrb_assert(len <= RB_SSL_CERTFP_LEN);
+    buf[0] = 'F';
+    uint32_to_buf(&buf[1], conn->id);
+    uint32_to_buf(&buf[5], len);
+    mod_cmd_write_queue(conn->ctl, buf, 9 + len);
+}
+
+
+static void
 ssl_process_accept_cb(rb_fde_t *F, int status, struct sockaddr *addr, rb_socklen_t len, void *data)
 {
     conn_t *conn = data;
-    uint8_t buf[9 + RB_SSL_CERTFP_LEN];
 
     if(status == RB_OK) {
-        int len = rb_get_ssl_certfp(F, &buf[5], certfp_method);
-		if(len)
-	 {
-	    lrb_assert(len <= RB_SSL_CERTFP_LEN);
-            buf[0] = 'F';
-            int32_to_buf(&buf[1], conn->id);
-            mod_cmd_write_queue(conn->ctl, buf, 5 + len);
-        }
         conn_mod_read_cb(conn->mod_fd, conn);
         conn_plain_read_cb(conn->plain_fd, conn);
+        ssl_send_cipher(conn);
+        ssl_send_certfp(conn);
         return;
     }
     /* ircd doesn't care about the reason for this */
@@ -667,19 +703,12 @@ static void
 ssl_process_connect_cb(rb_fde_t *F, int status, void *data)
 {
     conn_t *conn = data;
-    uint8_t buf[9 + RB_SSL_CERTFP_LEN];
 
     if(status == RB_OK) {
-        int len = rb_get_ssl_certfp(F, &buf[5], certfp_method);
-		if(len)
-	 {
-	   lrb_assert(len <= RB_SSL_CERTFP_LEN);
-            buf[0] = 'F';
-            int32_to_buf(&buf[1], conn->id);
-            mod_cmd_write_queue(conn->ctl, buf, 5 + len);
-        }
         conn_mod_read_cb(conn->mod_fd, conn);
         conn_plain_read_cb(conn->plain_fd, conn);
+        ssl_send_cipher(conn);
+        ssl_send_certfp(conn);
     } else if(status == RB_ERR_TIMEOUT)
         close_conn(conn, WAIT_PLAIN, "SSL handshake timed out");
     else if(status == RB_ERROR_SSL)
@@ -703,14 +732,12 @@ static void
 ssl_process_accept(mod_ctl_t * ctl, mod_ctl_buf_t * ctlb)
 {
     conn_t *conn;
-    int32_t id;
+    uint32_t id;
 
     conn = make_conn(ctl, ctlb->F[0], ctlb->F[1]);
 
-    id = buf_to_int32(&ctlb->buf[1]);
-
-    if(id >= 0)
-        conn_add_id_hash(conn, id);
+    id = buf_to_uint32(&ctlb->buf[1]);
+    conn_add_id_hash(conn, id);
     SetSSL(conn);
 
     if(rb_get_type(conn->mod_fd) & RB_FD_UNKNOWN) {
@@ -726,7 +753,7 @@ ssl_process_accept(mod_ctl_t * ctl, mod_ctl_buf_t * ctlb)
 static void
 ssl_change_certfp_method(mod_ctl_t * ctl, mod_ctl_buf_t * ctlb)
 {
-	certfp_method = buf_to_int32(&ctlb->buf[1]);
+    certfp_method = buf_to_uint32(&ctlb->buf[1]);
 }
 
 
@@ -734,13 +761,11 @@ static void
 ssl_process_connect(mod_ctl_t * ctl, mod_ctl_buf_t * ctlb)
 {
     conn_t *conn;
-    int32_t id;
+    uint32_t id;
     conn = make_conn(ctl, ctlb->F[0], ctlb->F[1]);
 
-    id = buf_to_int32(&ctlb->buf[1]);
-
-    if(id >= 0)
-        conn_add_id_hash(conn, id);
+    id = buf_to_uint32(&ctlb->buf[1]);
+    conn_add_id_hash(conn, id);
     SetSSL(conn);
 
     if(rb_get_type(conn->mod_fd) == RB_FD_UNKNOWN)
@@ -759,9 +784,9 @@ process_stats(mod_ctl_t * ctl, mod_ctl_buf_t * ctlb)
     char outstat[512];
     conn_t *conn;
     uint8_t *odata;
-    int32_t id;
+    uint32_t id;
 
-    id = buf_to_int32(&ctlb->buf[1]);
+    id = buf_to_uint32(&ctlb->buf[1]);
 
     if(id < 0)
         return;
@@ -784,11 +809,10 @@ process_stats(mod_ctl_t * ctl, mod_ctl_buf_t * ctlb)
 static void
 change_connid(mod_ctl_t *ctl, mod_ctl_buf_t *ctlb)
 {
-    int32_t id = buf_to_int32(&ctlb->buf[1]);
-    int32_t newid = buf_to_int32(&ctlb->buf[5]);
+    uint32_t id = buf_to_uint32(&ctlb->buf[1]);
+    uint32_t newid = buf_to_uint32(&ctlb->buf[5]);
     conn_t *conn = conn_find_by_id(id);
-    if(conn->id >= 0)
-        rb_dlinkDelete(&conn->node, connid_hash(conn->id));
+    rb_dlinkDelete(&conn->node, connid_hash(conn->id));
     SetZipSSL(conn);
     conn->id = newid;
 }
@@ -799,7 +823,7 @@ zlib_process(mod_ctl_t * ctl, mod_ctl_buf_t * ctlb)
 {
     uint8_t level;
     size_t recvqlen;
-    size_t hdr = (sizeof(uint8_t) * 2) + sizeof(int32_t);
+    size_t hdr = (sizeof(uint8_t) * 2) + sizeof(uint32_t);
     void *recvq_start;
     z_stream *instream, *outstream;
     conn_t *conn;
@@ -812,7 +836,7 @@ zlib_process(mod_ctl_t * ctl, mod_ctl_buf_t * ctlb)
     if(rb_get_type(conn->plain_fd) == RB_FD_UNKNOWN)
         rb_set_type(conn->plain_fd, RB_FD_SOCKET);
 
-    id = buf_to_int32(&ctlb->buf[1]);
+    id = buf_to_uint32(&ctlb->buf[1]);
     conn_add_id_hash(conn, id);
 
     level = (uint8_t)ctlb->buf[5];
@@ -839,7 +863,7 @@ zlib_process(mod_ctl_t * ctl, mod_ctl_buf_t * ctlb)
     outstream->data_type = Z_ASCII;
 
     if(level > 9)
-        level = Z_DEFAULT_COMPRESSION;
+        level = (uint8_t) Z_DEFAULT_COMPRESSION;
 
     deflateInit(&((zlib_stream_t *) conn->stream)->outstream, level);
     if(recvqlen > 0)
@@ -891,14 +915,12 @@ send_nossl_support(mod_ctl_t * ctl, mod_ctl_buf_t * ctlb)
 {
     static const char *nossl_cmd = "N";
     conn_t *conn;
-    int32_t id;
+    uint32_t id;
 
     if(ctlb != NULL) {
         conn = make_conn(ctl, ctlb->F[0], ctlb->F[1]);
-        id = buf_to_int32(&ctlb->buf[1]);
-
-        if(id >= 0)
-            conn_add_id_hash(conn, id);
+        id = buf_to_uint32(&ctlb->buf[1]);
+        conn_add_id_hash(conn, id);
         close_conn(conn, WAIT_PLAIN, "libratbox reports no SSL/TLS support");
     }
     mod_cmd_write_queue(ctl, nossl_cmd, strlen(nossl_cmd));
@@ -916,13 +938,11 @@ send_nozlib_support(mod_ctl_t * ctl, mod_ctl_buf_t * ctlb)
 {
     static const char *nozlib_cmd = "z";
     conn_t *conn;
-    int32_t id;
+    uint32_t id;
     if(ctlb != NULL) {
         conn = make_conn(ctl, ctlb->F[0], ctlb->F[1]);
-        id = buf_to_int32(&ctlb->buf[1]);
-
-        if(id >= 0)
-            conn_add_id_hash(conn, id);
+        id = buf_to_uint32(&ctlb->buf[1]);
+        conn_add_id_hash(conn, id);
         close_conn(conn, WAIT_PLAIN, "libratbox reports no zlib support");
     }
     mod_cmd_write_queue(ctl, nozlib_cmd, strlen(nozlib_cmd));
@@ -965,16 +985,14 @@ mod_process_cmd_recv(mod_ctl_t * ctl)
             break;
         }
 
-	case 'F':
-			{
-				if (ctl_buf->nfds != 2 || ctl_buf->buflen != 5)
-				{
-					cleanup_bad_message(ctl, ctl_buf);
-					break;
-				}
-				ssl_change_certfp_method(ctl, ctl_buf);
-				break;
-			}
+        case 'F': {
+            if (ctl_buf->nfds != 2 || ctl_buf->buflen != 5) {
+                cleanup_bad_message(ctl, ctl_buf);
+                break;
+            }
+            ssl_change_certfp_method(ctl, ctl_buf);
+            break;
+        }
 
         case 'K': {
             if(!ssl_ok) {
