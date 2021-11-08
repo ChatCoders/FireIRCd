@@ -596,7 +596,8 @@ send_new_ssl_certs_one(ssl_ctl_t * ctl, const char *ssl_cert, const char *ssl_pr
         return;
     }
     len = rb_snprintf(tmpbuf, sizeof(tmpbuf), "K%c%s%c%s%c%s%c%s%c", nul, ssl_cert, nul,
-                      ssl_private_key, nul, ssl_dh_params, nul, ssl_cipher_list, nul);
+                      ssl_private_key, nul, ssl_dh_params, nul,
+                      ssl_cipher_list != NULL ? ssl_cipher_list : "", nul);
     ssl_cmd_write_queue(ctl, NULL, 0, tmpbuf, len);
 }
 
@@ -841,5 +842,5 @@ void
 init_ssld(void)
 {
     rb_event_addish("collect_zipstats", collect_zipstats, NULL, ZIPSTATS_TIME);
-    rb_event_addish("cleanup_dead_ssld", cleanup_dead_ssl, NULL, 1200);
+    rb_event_addish("cleanup_dead_ssld", cleanup_dead_ssl, NULL, 60);
 }
