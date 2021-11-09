@@ -10,6 +10,7 @@
 - [X] - restore custom cloaking module
 - [X] - Add ability to change CertFP hash
 - [X] - allow certfp method to be configured
+- [ ] - many SSL improvements
 
 
 
