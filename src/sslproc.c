@@ -37,6 +37,8 @@
 #include "packet.h"
 
 #define ZIPSTATS_TIME           60
+#define MAXPASSFD		4
+#define READSIZE		1024
 
 static void collect_zipstats(void *unused);
 static void ssl_read_ctl(rb_fde_t * F, void *data);
@@ -45,8 +47,6 @@ static int ssld_count;
 static char tmpbuf[READBUF_SIZE];
 static char nul = '\0';
 
-#define MAXPASSFD 4
-#define READSIZE 1024
 typedef struct _ssl_ctl_buf {
     rb_dlink_node node;
     char *buf;
@@ -296,10 +296,8 @@ start_ssldaemon(int count, const char *ssl_cert, const char *ssl_private_key, co
             send_init_prng(ctl, RB_PRNG_DEFAULT, NULL);
             send_certfp_method(ctl, ConfigFileEntry.certfp_method);
 
-            if(ssl_cert != NULL && ssl_private_key != NULL)
-                send_new_ssl_certs_one(ctl, ssl_cert, ssl_private_key,
-                                       ssl_dh_params != NULL ? ssl_dh_params : "",
-                                       ssl_cipher_list != NULL ? ssl_cipher_list : "");
+            if(ssl_cert != NULL)
+                send_new_ssl_certs_one(ctl, ssl_cert, ssl_private_key, ssl_dh_params, ssl_cipher_list);
         }
         ssl_read_ctl(ctl->F, ctl);
         ssl_do_pipe(P2, ctl);
@@ -581,11 +579,21 @@ ssl_cmd_write_queue(ssl_ctl_t * ctl, rb_fde_t ** F, int count, const void *buf, 
 
 
 static void
-send_new_ssl_certs_one(ssl_ctl_t * ctl, const char *ssl_cert, const char *ssl_private_key, const char *ssl_dh_params, const char *ssl_cipher_list)
+send_new_ssl_certs_one(ssl_ctl_t * ctl, const char *ssl_cert, const char *ssl_private_key,
+                       const char *ssl_dh_params, const char *ssl_cipher_list)
 {
     size_t len;
 
-    len = strlen(ssl_cert) + strlen(ssl_private_key) + strlen(ssl_dh_params) + 5;
+    if (ssl_private_key == NULL)
+        ssl_private_key = ssl_cert;
+
+    if (ssl_dh_params == NULL)
+        ssl_dh_params = "";
+
+    if (ssl_cipher_list == NULL)
+        ssl_cipher_list = "";
+
+    len = strlen(ssl_cert) + strlen(ssl_private_key) + strlen(ssl_dh_params) + strlen(ssl_cipher_list) + 6;
     if(len > sizeof(tmpbuf)) {
         sendto_realops_snomask(SNO_GENERAL, L_ALL,
                                "Parameters for send_new_ssl_certs_one too long (%zu > %zu) to pass to ssld, not sending...",
@@ -595,9 +603,8 @@ send_new_ssl_certs_one(ssl_ctl_t * ctl, const char *ssl_cert, const char *ssl_pr
              len, sizeof(tmpbuf));
         return;
     }
-    len = rb_snprintf(tmpbuf, sizeof(tmpbuf), "K%c%s%c%s%c%s%c%s%c", nul, ssl_cert, nul,
-                      ssl_private_key, nul, ssl_dh_params, nul,
-                      ssl_cipher_list != NULL ? ssl_cipher_list : "", nul);
+    len = rb_snprintf(tmpbuf, sizeof(tmpbuf), "K%c%s%c%s%c%s%c%s%c", nul, ssl_cert,
+                      nul, ssl_private_key, nul, ssl_dh_params, nul, ssl_cipher_list, nul);
     ssl_cmd_write_queue(ctl, NULL, 0, tmpbuf, len);
 }
 
@@ -642,7 +649,7 @@ void
 send_new_ssl_certs(const char *ssl_cert, const char *ssl_private_key, const char *ssl_dh_params, const char *ssl_cipher_list)
 {
     rb_dlink_node *ptr;
-    if(ssl_cert == NULL || ssl_private_key == NULL || ssl_dh_params == NULL) {
+    if(ssl_cert == NULL) {
         ssl_ok = 0;
         return;
     }
