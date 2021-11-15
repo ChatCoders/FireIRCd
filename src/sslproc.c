@@ -720,7 +720,6 @@ start_zlib_session(void *data)
     rb_fde_t *F[2];
     rb_fde_t *xF1, *xF2;
     char *buf;
-    char buf2[9];
     void *recvq_start;
 
     size_t hdr = (sizeof(uint8_t) * 2) + sizeof(uint32_t);
@@ -745,7 +744,7 @@ start_zlib_session(void *data)
     buf = rb_malloc(len);
     level = ConfigFileEntry.compression_level;
 
-    uint32_to_buf(&buf[1], rb_get_fd(server->localClient->F));
+    uint32_to_buf(&buf[1], server->localClient->zconnid);
     buf[5] = (char) level;
 
     recvq_start = &buf[6];
@@ -769,22 +768,9 @@ start_zlib_session(void *data)
         return;
     }
 
-    if(IsSSL(server)) {
-        /* tell ssld the new connid for the ssl part*/
-        buf2[0] = 'Y';
-        uint32_to_buf(&buf2[1], rb_get_fd(server->localClient->F));
-        uint32_to_buf(&buf2[5], rb_get_fd(xF2));
-        ssl_cmd_write_queue(server->localClient->ssl_ctl, NULL, 0, buf2, sizeof(buf2));
-    }
-
-
     F[0] = server->localClient->F;
     F[1] = xF1;
-    del_from_cli_connid_hash(server);
     server->localClient->F = xF2;
-    /* need to redo as what we did before isn't valid now */
-    uint32_to_buf(&buf[1], rb_get_fd(server->localClient->F));
-    add_to_cli_connid_hash(server);
 
     server->localClient->z_ctl = which_ssld();
     server->localClient->z_ctl->cli_count++;
