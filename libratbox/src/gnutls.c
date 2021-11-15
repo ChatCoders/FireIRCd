@@ -162,6 +162,7 @@ rb_ssl_start_accepted(rb_fde_t *new_F, ACCB * cb, void *data, int timeout)
 	gnutls_dh_set_prime_bits(*ssl, 1024);
 	gnutls_transport_set_ptr(*ssl, (gnutls_transport_ptr_t) (long int)new_F->fd);
 	gnutls_certificate_server_set_request(*ssl, GNUTLS_CERT_REQUEST);
+	gnutls_priority_set(*ssl, default_priority);
 	if(do_ssl_handshake(new_F, rb_ssl_tryaccept, NULL))
 	{
 		struct acceptdata *ad = new_F->accept;

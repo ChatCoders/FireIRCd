@@ -219,7 +219,7 @@ free_conn(conn_t * conn)
         zlib_stream_t *stream = conn->stream;
         inflateEnd(&stream->instream);
         deflateEnd(&stream->outstream);
-	rb_free(stream);
+        rb_free(stream);
     }
 #endif
     rb_free(conn);
@@ -687,10 +687,10 @@ ssl_process_accept_cb(rb_fde_t *F, int status, struct sockaddr *addr, rb_socklen
     conn_t *conn = data;
 
     if(status == RB_OK) {
-        conn_mod_read_cb(conn->mod_fd, conn);
-        conn_plain_read_cb(conn->plain_fd, conn);
         ssl_send_cipher(conn);
         ssl_send_certfp(conn);
+        conn_mod_read_cb(conn->mod_fd, conn);
+        conn_plain_read_cb(conn->plain_fd, conn);
         return;
     }
     /* ircd doesn't care about the reason for this */
@@ -704,10 +704,10 @@ ssl_process_connect_cb(rb_fde_t *F, int status, void *data)
     conn_t *conn = data;
 
     if(status == RB_OK) {
-        conn_mod_read_cb(conn->mod_fd, conn);
-        conn_plain_read_cb(conn->plain_fd, conn);
         ssl_send_cipher(conn);
         ssl_send_certfp(conn);
+        conn_mod_read_cb(conn->mod_fd, conn);
+        conn_plain_read_cb(conn->plain_fd, conn);
     } else if(status == RB_ERR_TIMEOUT)
         close_conn(conn, WAIT_PLAIN, "SSL handshake timed out");
     else if(status == RB_ERROR_SSL)
@@ -811,19 +811,18 @@ change_connid(mod_ctl_t *ctl, mod_ctl_buf_t *ctlb)
     uint32_t newid = buf_to_uint32(&ctlb->buf[5]);
     conn_t *conn = conn_find_by_id(id);
     lrb_assert(conn != NULL);
-	if(conn == NULL)
-	{
-		uint8_t buf[256];
-		int len;
+    if(conn == NULL) {
+        uint8_t buf[256];
+        int len;
 
-		buf[0] = 'D';
-		uint32_to_buf(&buf[1], newid);
-		sprintf((char *) &buf[5], "connid %d does not exist", id);
-		len = (strlen((char *) &buf[5]) + 1) + 5;
-		mod_cmd_write_queue(ctl, buf, len);
+        buf[0] = 'D';
+        uint32_to_buf(&buf[1], newid);
+        sprintf((char *) &buf[5], "connid %d does not exist", id);
+        len = (strlen((char *) &buf[5]) + 1) + 5;
+        mod_cmd_write_queue(ctl, buf, len);
 
-		return;
-	}
+        return;
+    }
     rb_dlinkDelete(&conn->node, connid_hash(conn->id));
     SetZipSSL(conn);
     conn->id = newid;
@@ -1002,7 +1001,7 @@ mod_process_cmd_recv(mod_ctl_t * ctl)
         }
 
         case 'F': {
-            if (ctl_buf->nfds != 2 || ctl_buf->buflen != 5) {
+            if (ctl_buf->buflen != 5) {
                 cleanup_bad_message(ctl, ctl_buf);
                 break;
             }
