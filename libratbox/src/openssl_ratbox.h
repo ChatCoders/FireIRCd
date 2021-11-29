@@ -87,6 +87,14 @@
 #  endif
 #endif
 
+#if !defined(LIBRESSL_VERSION_NUMBER) && (OPENSSL_VERSION_NUMBER > 0x10101000L)
+#  define LRB_HAVE_TLS_ECDH_X25519      1
+#else
+#  if defined(LIBRESSL_VERSION_NUMBER) && (LIBRESSL_VERSION_NUMBER > 0x2050100fL)
+#    define LRB_HAVE_TLS_ECDH_X25519    1
+#  endif
+#endif
+
 
 
 /*
@@ -94,9 +102,36 @@
  * Hardcoded secp384r1 (P-384) is used on OpenSSL 1.0.0 and 1.0.1 (if available).
  */
 
-static const char rb_default_ciphers[] = "kEECDH+HIGH:kEDH+HIGH:HIGH:!aNULL";
+static const char rb_default_ciphers[] = ""
+	"aECDSA+kEECDH+CHACHA20:"
+	"aRSA+kEECDH+CHACHA20:"
+	"aRSA+kEDH+CHACHA20:"
+	"aECDSA+kEECDH+AESGCM:"
+	"aRSA+kEECDH+AESGCM:"
+	"aRSA+kEDH+AESGCM:"
+	"aECDSA+kEECDH+AESCCM:"
+	"aRSA+kEECDH+AESCCM:"
+	"aRSA+kEDH+AESCCM:"
+	"@STRENGTH:"
+	"aECDSA+kEECDH+HIGH+SHA384:"
+	"aRSA+kEECDH+HIGH+SHA384:"
+	"aRSA+kEDH+HIGH+SHA384:"
+	"aECDSA+kEECDH+HIGH+SHA256:"
+	"aRSA+kEECDH+HIGH+SHA256:"
+	"aRSA+kEDH+HIGH+SHA256:"
+	"aECDSA+kEECDH+HIGH:"
+	"aRSA+kEECDH+HIGH:"
+	"aRSA+kEDH+HIGH:"
+	"HIGH:"
+	"!3DES:"
+	"!aNULL";
+
 #ifdef LRB_HAVE_TLS_SET_CURVES
-static const char rb_default_curves[] = "P-521:P-384:P-256";
+#  ifdef LRB_HAVE_TLS_ECDH_X25519
+static char rb_default_curves[] = "X25519:P-521:P-384:P-256";
+#  else
+static char rb_default_curves[] = "P-521:P-384:P-256";
+#  endif
 #endif
 
 #endif /* LRB_OPENSSL_H_INC */
