@@ -1589,6 +1589,23 @@ conf_set_general_oper_umodes(void *data)
 }
 
 static void
+conf_set_general_certfp_method(void *data)
+{
+    char *method = data;
+
+    if (!strcasecmp(method, "sha1"))
+        ConfigFileEntry.certfp_method = RB_SSL_CERTFP_METH_SHA1;
+    else if (!strcasecmp(method, "sha256"))
+        ConfigFileEntry.certfp_method = RB_SSL_CERTFP_METH_SHA256;
+    else if (!strcasecmp(method, "sha512"))
+        ConfigFileEntry.certfp_method = RB_SSL_CERTFP_METH_SHA512;
+    else {
+        ConfigFileEntry.certfp_method = RB_SSL_CERTFP_METH_SHA1;
+        conf_report_error("Ignoring general::certfp_method -- bogus certfp method %s", method);
+    }
+}
+
+static void
 conf_set_general_oper_only_umodes(void *data)
 {
     set_modes_from_table(&ConfigFileEntry.oper_only_umodes, "umode", umode_table, data);
@@ -2193,8 +2210,9 @@ static struct ConfEntry conf_serverinfo_table[] =
 
 	{ "ssl_private_key",    CF_QSTRING, NULL, 0, &ServerInfo.ssl_private_key },
 	{ "ssl_ca_cert",        CF_QSTRING, NULL, 0, &ServerInfo.ssl_ca_cert },
-	{ "ssl_cert",           CF_QSTRING, NULL, 0, &ServerInfo.ssl_cert },   
+	{ "ssl_cert",           CF_QSTRING, NULL, 0, &ServerInfo.ssl_cert },
 	{ "ssl_dh_params",      CF_QSTRING, NULL, 0, &ServerInfo.ssl_dh_params },
+	{ "ssl_cipher_list",	CF_QSTRING, NULL, 0, &ServerInfo.ssl_cipher_list },
 	{ "ssld_count",		CF_INT,	    NULL, 0, &ServerInfo.ssld_count },
 
 	{ "default_max_clients",CF_INT,     NULL, 0, &ServerInfo.default_max_clients },
@@ -2346,6 +2364,7 @@ static struct ConfEntry conf_general_table[] =
 	{ "hide_spoof_ips",	CF_YESNO, NULL, 0, &ConfigFileEntry.hide_spoof_ips	},
 	{ "dline_with_reason",	CF_YESNO, NULL, 0, &ConfigFileEntry.dline_with_reason	},
 	{ "kline_with_reason",	CF_YESNO, NULL, 0, &ConfigFileEntry.kline_with_reason	},
+	{ "custom_cloak",       CF_QSTRING, NULL, 0, &ConfigFileEntry.custom_cloak      },
         { "map_oper_only",	CF_YESNO, NULL, 0, &ConfigFileEntry.map_oper_only	},
         { "links_oper_only",    CF_YESNO, NULL, 0, &ConfigFileEntry.links_oper_only	},
 	{ "max_accept",		CF_INT,   NULL, 0, &ConfigFileEntry.max_accept		},
@@ -2386,6 +2405,7 @@ static struct ConfEntry conf_general_table[] =
         { "use_propagated_bans",CF_YESNO, NULL, 0, &ConfigFileEntry.use_propagated_bans	},
 	{ "expire_override_time",	CF_TIME, NULL, 0, &ConfigFileEntry.expire_override_time},
         { "away_interval",    CF_INT,   NULL, 0, &ConfigFileEntry.away_interval    },
+	{ "certfp_method",	CF_STRING, conf_set_general_certfp_method, 0, NULL },
         { "\0", 		0, 	  NULL, 0, NULL }
 };
 

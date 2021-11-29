@@ -211,7 +211,7 @@ try_connections(void *unused)
             continue;
 
         /* don't allow ssl connections if ssl isn't setup */
-        if(ServerConfSSL(tmp_p) && (!ssl_ok || !get_ssld_count()))
+        if(ServerConfSSL(tmp_p) && (!ircd_ssl_ok || !get_ssld_count()))
             continue;
 
         cltmp = tmp_p->class;
@@ -769,7 +769,7 @@ server_estab(struct Client *client_p)
                    EmptyString(server_p->spasswd) ? "*" : server_p->spasswd, TS_CURRENT, me.id);
 
         /* pass info to new server */
-        send_capabilities(client_p, default_server_capabs
+        send_capabilities(client_p, default_server_capabs | CAP_MASK
                           | (ServerConfCompressed(server_p) ? CAP_ZIP_SUPPORTED : 0)
                           | (ServerConfTb(server_p) ? CAP_TB : 0));
 
@@ -1121,7 +1121,7 @@ serv_connect(struct server_conf *server_p, struct Client *by)
     rb_strlcpy(client_p->host, server_p->host, sizeof(client_p->host));
     rb_strlcpy(client_p->sockhost, server_p->host, sizeof(client_p->sockhost));
     client_p->localClient->F = F;
-    add_to_cli_fd_hash(client_p);
+    add_to_cli_connid_hash(client_p);
 
     /*
      * Set up the initial server evilness, ripped straight from
@@ -1209,11 +1209,9 @@ serv_connect_ssl_callback(rb_fde_t *F, int status, void *data)
         return;
 
     }
-    del_from_cli_fd_hash(client_p);
     client_p->localClient->F = xF[0];
-    add_to_cli_fd_hash(client_p);
+    client_p->localClient->ssl_ctl = start_ssld_connect(F, xF[1], client_p->localClient->connid);
 
-    client_p->localClient->ssl_ctl = start_ssld_connect(F, xF[1], rb_get_fd(xF[0]));
     SetSSL(client_p);
     serv_connect_callback(client_p->localClient->F, RB_OK, client_p);
 }
@@ -1299,7 +1297,7 @@ serv_connect_callback(rb_fde_t *F, int status, void *data)
                EmptyString(server_p->spasswd) ? "*" : server_p->spasswd, TS_CURRENT, me.id);
 
     /* pass my info to the new server */
-    send_capabilities(client_p, default_server_capabs
+    send_capabilities(client_p, default_server_capabs | CAP_MASK
                       | (ServerConfCompressed(server_p) ? CAP_ZIP_SUPPORTED : 0)
                       | (ServerConfTb(server_p) ? CAP_TB : 0));
 

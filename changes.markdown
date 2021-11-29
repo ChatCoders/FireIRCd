@@ -7,6 +7,10 @@
 - [X] - updating SSL required for OPER
 - [X] - Improveed static client quit and made a few changes
 - [X] - m_webirc: const-correctness
+- [X] - restore custom cloaking module
+- [X] - Add ability to change CertFP hash
+- [X] - allow certfp method to be configured
+- [ ] - many SSL improvements
 
 
 

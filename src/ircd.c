@@ -106,8 +106,8 @@ int doremotd = 0;
 int kline_queued = 0;
 int server_state_foreground = 0;
 int opers_see_all_users = 0;
-int ssl_ok = 0;
-int zlib_ok = 1;
+int ircd_ssl_ok = 0;
+int ircd_zlib_ok = 1;
 
 int testing_conf = 0;
 time_t startup_time;
@@ -669,11 +669,11 @@ main(int argc, char *argv[])
 
     if(ServerInfo.ssl_cert != NULL && ServerInfo.ssl_private_key != NULL) {
         /* just do the rb_setup_ssl_server to validate the config */
-        if(!rb_setup_ssl_server(ServerInfo.ssl_cert, ServerInfo.ssl_private_key, ServerInfo.ssl_dh_params)) {
+        if(!rb_setup_ssl_server(ServerInfo.ssl_cert, ServerInfo.ssl_private_key, ServerInfo.ssl_dh_params, ServerInfo.ssl_cipher_list)) {
             ilog(L_MAIN, "WARNING: Unable to setup SSL.");
-            ssl_ok = 0;
+            ircd_ssl_ok = 0;
         } else
-            ssl_ok = 1;
+            ircd_ssl_ok = 1;
     }
 
     if (testing_conf) {
@@ -718,7 +718,6 @@ main(int argc, char *argv[])
     if(server_state_foreground)
         inotice("now running in foreground mode from %s as pid %d ...",
                 ConfigFileEntry.dpath, getpid());
-
     rb_lib_loop(0);
 
     return 0;

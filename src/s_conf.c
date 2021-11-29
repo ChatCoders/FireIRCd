@@ -696,6 +696,7 @@ set_default_conf(void)
     ConfigFileEntry.kline_with_reason = YES;
     ConfigFileEntry.warn_no_nline = YES;
     ConfigFileEntry.non_redundant_klines = YES;
+    ConfigFileEntry.custom_cloak = rb_strdup("cloaked");
     ConfigFileEntry.stats_e_disabled = NO;
     ConfigFileEntry.stats_o_oper_only = NO;
     ConfigFileEntry.stats_k_oper_only = 1;	/* masked */
@@ -806,6 +807,7 @@ set_default_conf(void)
     ConfigFileEntry.servermask = 0;
     ConfigFileEntry.expire_override_time = 300;
     ServerInfo.default_max_clients = MAXCONNECTIONS;
+    ConfigFileEntry.certfp_method = RB_SSL_CERTFP_METH_SHA1;
 
     if (!alias_dict)
         alias_dict = irc_dictionary_create(strcasecmp);
@@ -862,18 +864,18 @@ validate_conf(void)
     if(ServerInfo.ssld_count < 1)
         ServerInfo.ssld_count = 1;
 
-    if(!rb_setup_ssl_server(ServerInfo.ssl_cert, ServerInfo.ssl_private_key, ServerInfo.ssl_dh_params)) {
+    if(!rb_setup_ssl_server(ServerInfo.ssl_cert, ServerInfo.ssl_private_key, ServerInfo.ssl_dh_params, ServerInfo.ssl_cipher_list)) {
         ilog(L_MAIN, "WARNING: Unable to setup SSL.");
-        ssl_ok = 0;
+        ircd_ssl_ok = 0;
     } else {
-        ssl_ok = 1;
-        send_new_ssl_certs(ServerInfo.ssl_cert, ServerInfo.ssl_private_key, ServerInfo.ssl_dh_params);
+        ircd_ssl_ok = 1;
+        send_new_ssl_certs(ServerInfo.ssl_cert, ServerInfo.ssl_private_key, ServerInfo.ssl_dh_params, ServerInfo.ssl_cipher_list);
     }
 
     if(ServerInfo.ssld_count > get_ssld_count()) {
         int start = ServerInfo.ssld_count - get_ssld_count();
         /* start up additional ssld if needed */
-        start_ssldaemon(start, ServerInfo.ssl_cert, ServerInfo.ssl_private_key, ServerInfo.ssl_dh_params);
+        start_ssldaemon(start, ServerInfo.ssl_cert, ServerInfo.ssl_private_key, ServerInfo.ssl_dh_params, ServerInfo.ssl_cipher_list);
 
     }
 
@@ -1579,6 +1581,8 @@ clear_out_old_conf(void)
     /* clean out general */
     rb_free(ConfigFileEntry.kline_reason);
     ConfigFileEntry.kline_reason = NULL;
+    rb_free(ConfigFileEntry.custom_cloak);
+    ConfigFileEntry.custom_cloak = NULL;
     rb_free(ConfigFileEntry.sasl_service);
     ConfigFileEntry.sasl_service = NULL;
 

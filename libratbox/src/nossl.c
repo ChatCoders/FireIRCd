@@ -33,7 +33,7 @@
 #include <commio-ssl.h>
 
 int
-rb_setup_ssl_server(const char *cert, const char *keyfile, const char *dhfile)
+rb_setup_ssl_server(const char *cert, const char *keyfile, const char *dhfile, const char *cipher_list)
 {
 	errno = ENOSYS;
 	return 0;
@@ -100,7 +100,7 @@ rb_get_ssl_strerror(rb_fde_t *F)
 }
 
 int
-rb_get_ssl_certfp(rb_fde_t *F, uint8_t certfp[RB_SSL_CERTFP_LEN])
+rb_get_ssl_certfp(rb_fde_t *F, uint8_t certfp[RB_SSL_CERTFP_LEN], int method)
 {
 	return 0;
 }
@@ -171,7 +171,21 @@ rb_ssl_clear_handshake_count(rb_fde_t *F)
 void
 rb_get_ssl_info(char *buf, size_t len)
 {
-        rb_snprintf(buf, len, "Not compiled with SSL support"); 
+        rb_snprintf(buf, len, "Not compiled with SSL support");
 }
-                                                
+
+int
+rb_ssl_get_certfp(rb_fde_t *F, uint8_t certfp[RB_SSL_CERTFP_LEN])
+{
+	errno = ENOSYS;
+	return -1;
+}
+
+const char *
+rb_ssl_get_cipher(rb_fde_t *F)
+{
+	errno = ENOSYS;
+	return NULL;
+}
+
 #endif /* !HAVE_OPENSSL */

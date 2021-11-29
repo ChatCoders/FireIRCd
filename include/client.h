@@ -233,6 +233,7 @@ struct LocalUser
 	char *opername; /* name of operator{} block being used or tried (challenge) */
 	char *challenge;
 	char *fullcaps;
+	char *cipher_string;
 
 	int caps;		/* capabilities bit-field */
 	rb_fde_t *F;		/* >= 0, for local clients */
@@ -242,8 +243,9 @@ struct LocalUser
 
 	struct DNSQuery *dnsquery; /* for outgoing server's name lookup */
 
-    time_t next_away;  /* Don't allow next away before... */
+        time_t next_away;  /* Don't allow next away before... */
 	time_t last;
+	uint32_t connid;
 
 	/* clients allowed to talk through +g */
 	rb_dlink_list allow_list;
@@ -281,6 +283,7 @@ struct LocalUser
 	struct _ssl_ctl *ssl_ctl;		/* which ssl daemon we're associate with */
 	struct _ssl_ctl *z_ctl;			/* second ctl for ssl+zlib */
 	uint32_t localflags;
+	uint32_t zconnid;
 	struct ZipStats *zipstats;		/* zipstats */
 	uint16_t cork_count;			/* used for corking/uncorking connections */
 	struct ev_entry *event;			/* used for associated events */

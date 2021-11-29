@@ -150,6 +150,7 @@ struct config_file_entry
 	char *static_quit_reason;
 	char *servicestring;
 	char *kline_reason;
+	char *custom_cloak; /* used with old_cloaking */
         int static_parts;
 	char *static_part_reason;
 	int hide_uids_in_whois;
@@ -241,7 +242,8 @@ struct config_file_entry
         int use_propagated_bans;
         int secret_channels_in_whois;
 	int expire_override_time;
-    int away_interval;
+        int away_interval;
+	int certfp_method;
 };
 
 struct config_channel_entry
@@ -317,6 +319,7 @@ struct server_info
 	char *ssl_ca_cert;
 	char *ssl_cert;
 	char *ssl_dh_params;
+	char *ssl_cipher_list;
 	int ssld_count;
 };
 

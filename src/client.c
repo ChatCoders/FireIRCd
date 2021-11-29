@@ -77,6 +77,7 @@ static rb_bh *pclient_heap = NULL;
 static rb_bh *user_heap = NULL;
 static rb_bh *away_heap = NULL;
 static char current_uid[IDLEN];
+static int32_t current_connid = 0;
 
 struct Dictionary *nd_dict = NULL;
 
@@ -155,7 +156,16 @@ make_client(struct Client *from)
 
         client_p->localClient->lasttime = client_p->localClient->firsttime = rb_current_time();
 
-        client_p->localClient->F = NULL;
+        if(current_connid+1 == 0)
+            current_connid++;
+
+        client_p->localClient->connid = ++current_connid;
+
+        if(current_connid+1 == 0)
+            current_connid++;
+
+        client_p->localClient->zconnid = ++current_connid;
+        add_to_cli_connid_hash(client_p);
 
         client_p->preClient = rb_bh_alloc(pclient_heap);;
 
@@ -212,8 +222,8 @@ free_local_client(struct Client *client_p)
         client_p->localClient->listener = 0;
     }
 
+    del_from_cli_connid_hash(client_p);
     if(client_p->localClient->F != NULL) {
-        del_from_cli_fd_hash(client_p);
         rb_close(client_p->localClient->F);
     }
 
@@ -1825,7 +1835,7 @@ close_connection(struct Client *client_p)
         if(!IsIOError(client_p))
             send_queued(client_p);
 
-        del_from_cli_fd_hash(client_p);
+        del_from_cli_connid_hash(client_p);
         rb_close(client_p->localClient->F);
         client_p->localClient->F = NULL;
     }
