@@ -1,6 +1,6 @@
 /*
  *  libratbox: a library used by ircd-ratbox and other things
- *  mbedtls.c: ARM mbedTLS backend
+ *  mbedtls.c: ARM MbedTLS backend
  *
  *  Copyright (C) 2007-2008 ircd-ratbox development team
  *  Copyright (C) 2007-2008 Aaron Sethman <androsyn@ratbox.org>
@@ -45,6 +45,8 @@
 
 #include "mbedtls_embedded_data.h"
 
+#define RB_MAX_CIPHERSUITES 512
+
 typedef struct
 {
 	mbedtls_x509_crt	 crt;
@@ -52,6 +54,7 @@ typedef struct
 	mbedtls_dhm_context	 dhp;
 	mbedtls_ssl_config	 server_cfg;
 	mbedtls_ssl_config	 client_cfg;
+	int			 suites[RB_MAX_CIPHERSUITES + 1];
 	size_t			 refcount;
 } rb_mbedtls_cfg_context;
 
@@ -148,6 +151,8 @@ rb_mbedtls_cfg_new(void)
 	mbedtls_ssl_config_init(&cfg->server_cfg);
 	mbedtls_ssl_config_init(&cfg->client_cfg);
 
+	(void) memset(cfg->suites, 0x00, sizeof cfg->suites);
+
 	cfg->refcount = 1;
 
 	int ret;
@@ -158,6 +163,7 @@ rb_mbedtls_cfg_new(void)
 	{
 		rb_lib_log("rb_mbedtls_cfg_new: ssl_config_defaults (server): %s",
 		           rb_get_ssl_strerror_internal(ret));
+
 		rb_mbedtls_cfg_decref(cfg);
 		return NULL;
 	}
@@ -168,6 +174,7 @@ rb_mbedtls_cfg_new(void)
 	{
 		rb_lib_log("rb_mbedtls_cfg_new: ssl_config_defaults (client): %s",
 		           rb_get_ssl_strerror_internal(ret));
+
 		rb_mbedtls_cfg_decref(cfg);
 		return NULL;
 	}
@@ -231,7 +238,7 @@ rb_ssl_accept_common(rb_fde_t *const F, void *const data)
 	lrb_assert(F->accept->callback != NULL);
 	lrb_assert(F->ssl != NULL);
 
-	mbedtls_ssl_context *const ssl_ctx = (mbedtls_ssl_context *) SSL_P(F);
+	mbedtls_ssl_context *const ssl_ctx = SSL_P(F);
 
 	if(ssl_ctx->state != MBEDTLS_SSL_HANDSHAKE_OVER)
 	{
@@ -338,7 +345,7 @@ rb_init_ssl(void)
 	int ret;
 
 	if((ret = mbedtls_ctr_drbg_seed(&ctr_drbg_ctx, mbedtls_entropy_func, &entropy_ctx,
-	            (const unsigned char *)rb_mbedtls_personal_str, sizeof(rb_mbedtls_personal_str))) != 0)
+	    (const unsigned char *)rb_mbedtls_personal_str, sizeof(rb_mbedtls_personal_str))) != 0)
 	{
 		rb_lib_log("rb_init_ssl: ctr_drbg_seed: %s",
 		           rb_get_ssl_strerror_internal(ret));
@@ -435,7 +442,80 @@ rb_setup_ssl_server(const char *const certfile, const char *keyfile,
 		return 0;
 	}
 
-	/* XXX support cipher lists when added to mbedtls */
+
+
+	const int *rb_ciphersuites = newcfg->suites;
+	size_t suites_count = 0;
+
+	if(cipherlist != NULL)
+	{
+		// The cipherlist is (const char *) -- we should not modify it
+		char *const cipherlist_dup = strdup(cipherlist);
+
+		if(cipherlist_dup != NULL)
+		{
+			char *cipher_str = cipherlist_dup;
+			char *cipher_idx;
+
+			do
+			{
+				// Arbitrary, but the same separator as OpenSSL uses
+				cipher_idx = strchr(cipher_str, ':');
+
+				// This could legitimately be NULL (last ciphersuite in the list)
+				if(cipher_idx != NULL)
+					*cipher_idx = '\0';
+
+				size_t cipher_len = strlen(cipher_str);
+				int cipher_idn = 0;
+
+				// All MbedTLS ciphersuite names begin with these 4 characters
+				if(cipher_len > 4 && strncmp(cipher_str, "TLS-", 4) == 0)
+					cipher_idn = mbedtls_ssl_get_ciphersuite_id(cipher_str);
+
+				// Prevent the same ciphersuite being added multiple times
+				for(size_t x = 0; cipher_idn != 0 && newcfg->suites[x] != 0; x++)
+					if(newcfg->suites[x] == cipher_idn)
+						cipher_idn = 0;
+
+				// Add the suite to the list
+				if(cipher_idn != 0)
+					newcfg->suites[suites_count++] = cipher_idn;
+
+				// Advance the string to the next entry
+				if (cipher_idx)
+					cipher_str = cipher_idx + 1;
+
+			} while(cipher_idx && suites_count < RB_MAX_CIPHERSUITES);
+
+			if(suites_count == 0)
+				rb_lib_log("rb_setup_ssl_server: Ciphersuites provided, but could not parse any");
+
+			free(cipherlist_dup);
+		}
+		else
+		{
+			rb_lib_log("rb_setup_ssl_server: strdup: %s", strerror(errno));
+		}
+	}
+	else
+	{
+		rb_lib_log("rb_setup_ssl_server: No ciphersuite list provided");
+	}
+
+	if(suites_count == 0)
+	{
+		rb_lib_log("rb_setup_ssl_server: Using default ciphersuites");
+
+		rb_ciphersuites = rb_mbedtls_ciphersuites;
+		suites_count = (sizeof(rb_mbedtls_ciphersuites) / sizeof(rb_mbedtls_ciphersuites[0])) - 1;
+	}
+
+	mbedtls_ssl_conf_ciphersuites(&newcfg->server_cfg, rb_ciphersuites);
+	mbedtls_ssl_conf_ciphersuites(&newcfg->client_cfg, rb_ciphersuites);
+	rb_lib_log("rb_setup_ssl_server: Configured %zu ciphersuites", suites_count);
+
+
 
 	rb_mbedtls_cfg_decref(rb_mbedtls_cfg);
 	rb_mbedtls_cfg = newcfg;
@@ -672,7 +752,7 @@ rb_sock_net_xmit(void *const context_ptr, const unsigned char *const buf, size_t
 	int ret = (int) write(F->fd, buf, count);
 
 	if(ret < 0 && rb_ignore_errno(errno))
-		return MBEDTLS_ERR_SSL_WANT_READ;
+		return MBEDTLS_ERR_SSL_WANT_WRITE;
 
 	return ret;
 }
