@@ -119,14 +119,13 @@ rb_mbedtls_cfg_decref(rb_mbedtls_cfg_context *const cfg)
 }
 
 static void
-rb_ssl_init_fd(rb_fde_t *const F, rb_fd_tls_direction dir)
+rb_ssl_init_fd(rb_fde_t *const F, const rb_fd_tls_direction dir)
 {
-
 	rb_mbedtls_ssl_context *const mbed_ssl_ctx = rb_malloc(sizeof *mbed_ssl_ctx);
 
 	if(mbed_ssl_ctx == NULL)
 	{
-		rb_lib_log("rb_ssl_init_fd: rb_malloc: allocation failure");
+		rb_lib_log("%s: rb_malloc: allocation failure", __func__);
 		rb_close(F);
 		return;
 	}
@@ -149,7 +148,7 @@ rb_ssl_init_fd(rb_fde_t *const F, rb_fd_tls_direction dir)
 
 	if((ret = mbedtls_ssl_setup(&mbed_ssl_ctx->ssl, mbed_config)) != 0)
 	{
-		rb_lib_log("rb_ssl_init_fd: ssl_setup: %s", rb_ssl_strerror(ret));
+		rb_lib_log("%s: ssl_setup: %s", __func__, rb_ssl_strerror(ret));
 		mbedtls_ssl_free(&mbed_ssl_ctx->ssl);
 		rb_free(mbed_ssl_ctx);
 		rb_close(F);
@@ -157,6 +156,7 @@ rb_ssl_init_fd(rb_fde_t *const F, rb_fd_tls_direction dir)
 	}
 
 	mbedtls_ssl_set_bio(&mbed_ssl_ctx->ssl, F, rb_sock_net_xmit, rb_sock_net_recv, NULL);
+
 	rb_mbedtls_cfg_incref(rb_mbedtls_cfg);
 	mbed_ssl_ctx->cfg = rb_mbedtls_cfg;
 
@@ -187,7 +187,7 @@ rb_mbedtls_cfg_new(void)
 	             MBEDTLS_SSL_IS_SERVER, MBEDTLS_SSL_TRANSPORT_STREAM,
 	             MBEDTLS_SSL_PRESET_DEFAULT)) != 0)
 	{
-		rb_lib_log("rb_mbedtls_cfg_new: ssl_config_defaults (server): %s", rb_ssl_strerror(ret));
+		rb_lib_log("%s: ssl_config_defaults (server): %s", __func__, rb_ssl_strerror(ret));
 		rb_mbedtls_cfg_decref(cfg);
 		return NULL;
 	}
@@ -196,7 +196,7 @@ rb_mbedtls_cfg_new(void)
 	             MBEDTLS_SSL_IS_CLIENT, MBEDTLS_SSL_TRANSPORT_STREAM,
 	             MBEDTLS_SSL_PRESET_DEFAULT)) != 0)
 	{
-		rb_lib_log("rb_mbedtls_cfg_new: ssl_config_defaults (client): %s", rb_ssl_strerror(ret));
+		rb_lib_log("%s: ssl_config_defaults (client): %s", __func__, rb_ssl_strerror(ret));
 		rb_mbedtls_cfg_decref(cfg);
 		return NULL;
 	}
@@ -288,7 +288,7 @@ rb_ssl_tryconn_cb(rb_fde_t *const F, void *const data)
 }
 
 static const char *
-rb_ssl_strerror(int err)
+rb_ssl_strerror(const int err)
 {
 	static char errbuf[512];
 
@@ -341,18 +341,18 @@ rb_init_ssl(void)
 	if((ret = mbedtls_ctr_drbg_seed(&ctr_drbg_ctx, mbedtls_entropy_func, &entropy_ctx,
 	    (const unsigned char *)rb_mbedtls_personal_str, sizeof(rb_mbedtls_personal_str))) != 0)
 	{
-		rb_lib_log("rb_init_ssl: ctr_drbg_seed: %s", rb_ssl_strerror(ret));
+		rb_lib_log("%s: ctr_drbg_seed: %s", __func__, rb_ssl_strerror(ret));
 		return 0;
 	}
 
 	if((ret = mbedtls_x509_crt_parse_der(&dummy_ca_ctx, rb_mbedtls_dummy_ca_certificate,
 	                                     sizeof(rb_mbedtls_dummy_ca_certificate))) != 0)
 	{
-		rb_lib_log("rb_init_ssl: x509_crt_parse_der (Dummy CA): %s", rb_ssl_strerror(ret));
+		rb_lib_log("%s: x509_crt_parse_der (Dummy CA): %s", __func__, rb_ssl_strerror(ret));
 		return 0;
 	}
 
-	rb_lib_log("rb_init_ssl: MbedTLS backend initialised");
+	rb_lib_log("%s: MbedTLS backend initialised", __func__);
 	return 1;
 }
 
@@ -362,7 +362,7 @@ rb_setup_ssl_server(const char *const certfile, const char *keyfile,
 {
 	if(certfile == NULL)
 	{
-		rb_lib_log("rb_setup_ssl_server: no certificate file specified");
+		rb_lib_log("%s: no certificate file specified", __func__);
 		return 0;
 	}
 
@@ -373,7 +373,7 @@ rb_setup_ssl_server(const char *const certfile, const char *keyfile,
 
 	if(newcfg == NULL)
 	{
-		rb_lib_log("rb_setup_ssl_server: rb_mbedtls_cfg_new: allocation failed");
+		rb_lib_log("%s: rb_mbedtls_cfg_new: allocation failed", __func__);
 		return 0;
 	}
 
@@ -381,50 +381,48 @@ rb_setup_ssl_server(const char *const certfile, const char *keyfile,
 
 	if((ret = mbedtls_x509_crt_parse_file(&newcfg->crt, certfile)) != 0)
 	{
-		rb_lib_log("rb_setup_ssl_server: x509_crt_parse_file ('%s'): %s", certfile, rb_ssl_strerror(ret));
+		rb_lib_log("%s: x509_crt_parse_file ('%s'): %s", __func__, certfile, rb_ssl_strerror(ret));
 		rb_mbedtls_cfg_decref(newcfg);
 		return 0;
 	}
 	if((ret = mbedtls_pk_parse_keyfile(&newcfg->key, keyfile, NULL)) != 0)
 	{
-		rb_lib_log("rb_setup_ssl_server: pk_parse_keyfile ('%s'): %s", keyfile, rb_ssl_strerror(ret));
+		rb_lib_log("%s: pk_parse_keyfile ('%s'): %s", __func__, keyfile, rb_ssl_strerror(ret));
 		rb_mbedtls_cfg_decref(newcfg);
 		return 0;
 	}
+	if((ret = mbedtls_ssl_conf_own_cert(&newcfg->server_cfg, &newcfg->crt, &newcfg->key)) != 0)
+	{
+		rb_lib_log("%s: ssl_conf_own_cert (server): %s", __func__, rb_ssl_strerror(ret));
+		rb_mbedtls_cfg_decref(newcfg);
+		return 0;
+	}
+	if((ret = mbedtls_ssl_conf_own_cert(&newcfg->client_cfg, &newcfg->crt, &newcfg->key)) != 0)
+	{
+		rb_lib_log("%s: ssl_conf_own_cert (client): %s", __func__, rb_ssl_strerror(ret));
+		rb_mbedtls_cfg_decref(newcfg);
+		return 0;
+	}
+
 
 	/* Absense of DH parameters does not matter with mbedTLS, as it comes with its own defaults
 	   Thus, clients can still use DHE- ciphersuites, just over a weaker, common DH group
 	   So, we do not consider failure to parse DH parameters as fatal */
 	if(dhfile == NULL)
 	{
-		rb_lib_log("rb_setup_ssl_server: no DH parameters file specified");
+		rb_lib_log("%s: no DH parameters file specified", __func__);
 	}
 	else
 	{
 		if((ret = mbedtls_dhm_parse_dhmfile(&newcfg->dhp, dhfile)) != 0)
 		{
-			rb_lib_log("rb_setup_ssl_server: dhm_parse_dhmfile ('%s'): %s",
-			           dhfile, rb_ssl_strerror(ret));
+			rb_lib_log("%s: dhm_parse_dhmfile ('%s'): %s", __func__, dhfile, rb_ssl_strerror(ret));
 		}
 		else if((ret = mbedtls_ssl_conf_dh_param_ctx(&newcfg->server_cfg, &newcfg->dhp)) != 0)
 		{
-			rb_lib_log("rb_setup_ssl_server: ssl_conf_dh_param_ctx: %s", rb_ssl_strerror(ret));
+			rb_lib_log("%s: ssl_conf_dh_param_ctx: %s", __func__, rb_ssl_strerror(ret));
 		}
 	}
-
-	if((ret = mbedtls_ssl_conf_own_cert(&newcfg->server_cfg, &newcfg->crt, &newcfg->key)) != 0)
-	{
-		rb_lib_log("rb_setup_ssl_server: ssl_conf_own_cert (server): %s", rb_ssl_strerror(ret));
-		rb_mbedtls_cfg_decref(newcfg);
-		return 0;
-	}
-	if((ret = mbedtls_ssl_conf_own_cert(&newcfg->client_cfg, &newcfg->crt, &newcfg->key)) != 0)
-	{
-		rb_lib_log("rb_setup_ssl_server: ssl_conf_own_cert (client): %s", rb_ssl_strerror(ret));
-		rb_mbedtls_cfg_decref(newcfg);
-		return 0;
-	}
-
 
 
 	const int *rb_ciphersuites = newcfg->suites;
@@ -472,23 +470,23 @@ rb_setup_ssl_server(const char *const certfile, const char *keyfile,
 			} while(cipher_idx && suites_count < RB_MAX_CIPHERSUITES);
 
 			if(suites_count == 0)
-				rb_lib_log("rb_setup_ssl_server: Ciphersuites provided, but could not parse any");
+				rb_lib_log("%s: Ciphersuites provided, but could not parse any", __func__);
 
 			free(cipherlist_dup);
 		}
 		else
 		{
-			rb_lib_log("rb_setup_ssl_server: strdup: %s", strerror(errno));
+			rb_lib_log("%s: strdup: %s", __func__, strerror(errno));
 		}
 	}
 	else
 	{
-		rb_lib_log("rb_setup_ssl_server: No ciphersuite list provided");
+		rb_lib_log("%s: No ciphersuite list provided", __func__);
 	}
 
 	if(suites_count == 0)
 	{
-		rb_lib_log("rb_setup_ssl_server: Using default ciphersuites");
+		rb_lib_log("%s: Using default ciphersuites", __func__);
 
 		rb_ciphersuites = rb_mbedtls_ciphersuites;
 		suites_count = (sizeof(rb_mbedtls_ciphersuites) / sizeof(rb_mbedtls_ciphersuites[0])) - 1;
@@ -496,32 +494,31 @@ rb_setup_ssl_server(const char *const certfile, const char *keyfile,
 
 	mbedtls_ssl_conf_ciphersuites(&newcfg->server_cfg, rb_ciphersuites);
 	mbedtls_ssl_conf_ciphersuites(&newcfg->client_cfg, rb_ciphersuites);
-	rb_lib_log("rb_setup_ssl_server: Configured %zu ciphersuites", suites_count);
-
+	rb_lib_log("%s: Configured %zu ciphersuites", __func__, suites_count);
 
 
 	rb_mbedtls_cfg_decref(rb_mbedtls_cfg);
 	rb_mbedtls_cfg = newcfg;
 
-	rb_lib_log("rb_setup_ssl_server: TLS configuration successful");
+	rb_lib_log("%s: TLS configuration successful", __func__);
 	return 1;
 }
 
 int
 rb_init_prng(const char *const path, prng_seed_t seed_type)
 {
-	rb_lib_log("rb_init_prng: Skipping PRNG initialisation; not required by MbedTLS backend");
+	rb_lib_log("%s: Skipping PRNG initialisation; not required by MbedTLS backend", __func__);
 	return 1;
 }
 
 int
-rb_get_random(void *const buf, size_t length)
+rb_get_random(void *const buf, const size_t length)
 {
 	int ret;
 
 	if((ret = mbedtls_ctr_drbg_random(&ctr_drbg_ctx, buf, length)) != 0)
 	{
-		rb_lib_log("rb_get_random: ctr_drbg_random: %s", rb_ssl_strerror(ret));
+		rb_lib_log("%s: ctr_drbg_random: %s", __func__, rb_ssl_strerror(ret));
 		return 0;
 	}
 
@@ -531,12 +528,15 @@ rb_get_random(void *const buf, size_t length)
 const char *
 rb_get_ssl_strerror(rb_fde_t *const F)
 {
-	return rb_ssl_strerror((int)F->ssl_errno);
+	return rb_ssl_strerror((int) F->ssl_errno);
 }
 
 int
-rb_get_ssl_certfp(rb_fde_t *const F, uint8_t certfp[const RB_SSL_CERTFP_LEN], int method)
+rb_get_ssl_certfp(rb_fde_t *const F, uint8_t certfp[const RB_SSL_CERTFP_LEN], const int method)
 {
+	if(F == NULL || F->ssl == NULL)
+		return 0;
+
 	mbedtls_md_type_t md_type;
 	int hashlen;
 
@@ -572,7 +572,7 @@ rb_get_ssl_certfp(rb_fde_t *const F, uint8_t certfp[const RB_SSL_CERTFP_LEN], in
 
 	if((ret = mbedtls_md(md_info, peer_cert->raw.p, peer_cert->raw.len, certfp)) != 0)
 	{
-		rb_lib_log("rb_get_ssl_certfp: mbedtls_md: %s", rb_ssl_strerror(ret));
+		rb_lib_log("%s: mbedtls_md: %s", __func__, rb_ssl_strerror(ret));
 		return 0;
 	}
 
@@ -580,7 +580,7 @@ rb_get_ssl_certfp(rb_fde_t *const F, uint8_t certfp[const RB_SSL_CERTFP_LEN], in
 }
 
 void
-rb_get_ssl_info(char *const buf, size_t len)
+rb_get_ssl_info(char *const buf, const size_t len)
 {
 	char version_str[512];
 
@@ -593,7 +593,7 @@ rb_get_ssl_info(char *const buf, size_t len)
 const char *
 rb_ssl_get_cipher(rb_fde_t *const F)
 {
-	if(F == NULL || F->ssl == NULL || SSL_P(F) == NULL)
+	if(F == NULL || F->ssl == NULL)
 		return NULL;
 
 	static char buf[512];
@@ -607,15 +607,15 @@ rb_ssl_get_cipher(rb_fde_t *const F)
 }
 
 ssize_t
-rb_ssl_read(rb_fde_t *const F, void *const buf, size_t count)
+rb_ssl_read(rb_fde_t *const F, void *const buf, const size_t count)
 {
 	lrb_assert(F != NULL);
 	lrb_assert(F->ssl != NULL);
 
-	ssize_t ret = (ssize_t) mbedtls_ssl_read(SSL_P(F), buf, count);
+	int ret = mbedtls_ssl_read(SSL_P(F), buf, count);
 
 	if(ret >= 0)
-		return ret;
+		return (ssize_t) ret;
 
 	switch(ret)
 	{
@@ -633,15 +633,15 @@ rb_ssl_read(rb_fde_t *const F, void *const buf, size_t count)
 }
 
 ssize_t
-rb_ssl_write(rb_fde_t *const F, const void *const buf, size_t count)
+rb_ssl_write(rb_fde_t *const F, const void *const buf, const size_t count)
 {
 	lrb_assert(F != NULL);
 	lrb_assert(F->ssl != NULL);
 
-	ssize_t ret = (ssize_t) mbedtls_ssl_write(SSL_P(F), buf, count);
+	int ret = mbedtls_ssl_write(SSL_P(F), buf, count);
 
 	if(ret >= 0)
-		return ret;
+		return (ssize_t) ret;
 
 	switch(ret)
 	{
@@ -666,7 +666,7 @@ rb_ssl_write(rb_fde_t *const F, const void *const buf, size_t count)
  */
 
 static void
-rb_ssl_connect_realcb(rb_fde_t *const F, int status, struct ssl_connect *const sconn)
+rb_ssl_connect_realcb(rb_fde_t *const F, const int status, struct ssl_connect *const sconn)
 {
 	lrb_assert(F->connect != NULL);
 
@@ -692,7 +692,7 @@ rb_ssl_tryconn_timeout_cb(rb_fde_t *const F, void *const data)
 }
 
 static void
-rb_ssl_tryconn(rb_fde_t *const F, int status, void *const data)
+rb_ssl_tryconn(rb_fde_t *const F, const int status, void *const data)
 {
 	lrb_assert(F != NULL);
 
@@ -712,7 +712,7 @@ rb_ssl_tryconn(rb_fde_t *const F, int status, void *const data)
 }
 
 static int
-rb_sock_net_recv(void *const context_ptr, unsigned char *const buf, size_t count)
+rb_sock_net_recv(void *const context_ptr, unsigned char *const buf, const size_t count)
 {
 	const int fd = rb_get_fd((rb_fde_t *)context_ptr);
 
@@ -725,7 +725,7 @@ rb_sock_net_recv(void *const context_ptr, unsigned char *const buf, size_t count
 }
 
 static int
-rb_sock_net_xmit(void *const context_ptr, const unsigned char *const buf, size_t count)
+rb_sock_net_xmit(void *const context_ptr, const unsigned char *const buf, const size_t count)
 {
 	const int fd = rb_get_fd((rb_fde_t *)context_ptr);
 
@@ -763,7 +763,7 @@ rb_ssl_clear_handshake_count(rb_fde_t *const F)
 }
 
 void
-rb_ssl_start_accepted(rb_fde_t *const F, ACCB *const cb, void *const data, int timeout)
+rb_ssl_start_accepted(rb_fde_t *const F, ACCB *const cb, void *const data, const int timeout)
 {
 	F->type |= RB_FD_SSL;
 
@@ -779,16 +779,16 @@ rb_ssl_start_accepted(rb_fde_t *const F, ACCB *const cb, void *const data, int t
 }
 
 void
-rb_ssl_accept_setup(rb_fde_t *const srv_F, rb_fde_t *const cli_F, struct sockaddr *const st, int addrlen)
+rb_ssl_accept_setup(rb_fde_t *const srv_F, rb_fde_t *const cli_F, struct sockaddr *const st, const int addrlen)
 {
 	cli_F->type |= RB_FD_SSL;
 
 	cli_F->accept = rb_malloc(sizeof(struct acceptdata));
 	cli_F->accept->callback = srv_F->accept->callback;
 	cli_F->accept->data = srv_F->accept->data;
-	cli_F->accept->addrlen = addrlen;
+	cli_F->accept->addrlen = (rb_socklen_t) addrlen;
 	(void) memset(&cli_F->accept->S, 0x00, sizeof cli_F->accept->S);
-	(void) memcpy(&cli_F->accept->S, st, addrlen);
+	(void) memcpy(&cli_F->accept->S, st, (size_t) addrlen);
 
 	rb_settimeout(cli_F, 10, rb_ssl_timeout_cb, NULL);
 	rb_ssl_init_fd(cli_F, RB_FD_TLS_DIRECTION_IN);
@@ -796,9 +796,10 @@ rb_ssl_accept_setup(rb_fde_t *const srv_F, rb_fde_t *const cli_F, struct sockadd
 }
 
 int
-rb_ssl_listen(rb_fde_t *const F, int backlog, int defer_accept)
+rb_ssl_listen(rb_fde_t *const F, const int backlog, const int defer_accept)
 {
 	int result = rb_listen(F, backlog, defer_accept);
+
 	F->type = RB_FD_SOCKET | RB_FD_LISTEN | RB_FD_SSL;
 
 	return result;
@@ -806,7 +807,7 @@ rb_ssl_listen(rb_fde_t *const F, int backlog, int defer_accept)
 
 void
 rb_connect_tcp_ssl(rb_fde_t *const F, struct sockaddr *const dest, struct sockaddr *const clocal,
-                   int socklen, CNCB *const callback, void *const data, int timeout)
+                   const int socklen, CNCB *const callback, void *const data, const int timeout)
 {
 	if(F == NULL)
 		return;
@@ -820,7 +821,7 @@ rb_connect_tcp_ssl(rb_fde_t *const F, struct sockaddr *const dest, struct sockad
 }
 
 void
-rb_ssl_start_connected(rb_fde_t *const F, CNCB *const callback, void *const data, int timeout)
+rb_ssl_start_connected(rb_fde_t *const F, CNCB *const callback, void *const data, const int timeout)
 {
 	if(F == NULL)
 		return;
