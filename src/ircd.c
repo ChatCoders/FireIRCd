@@ -696,6 +696,7 @@ main(int argc, char *argv[])
     construct_umodebuf();
 
     check_class();
+    write_pidfile(pidFileName);
     load_help();
     open_logfiles();
 
@@ -717,10 +718,6 @@ main(int argc, char *argv[])
     if(server_state_foreground)
         inotice("now running in foreground mode from %s as pid %d ...",
                 ConfigFileEntry.dpath, getpid());
-    else
-        make_daemon();
-    write_pidfile(pidFileName);
-
     rb_lib_loop(0);
 
     return 0;
