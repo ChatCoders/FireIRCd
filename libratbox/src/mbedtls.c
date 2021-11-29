@@ -98,9 +98,9 @@ rb_get_ssl_strerror_internal(int err)
 #ifdef MBEDTLS_ERROR_C
 	char mbed_errbuf[512];
 	mbedtls_strerror(err, mbed_errbuf, sizeof mbed_errbuf);
-	rb_snprintf(errbuf, sizeof errbuf, "(-0x%x) %s", -err, mbed_errbuf);
+	(void) rb_snprintf(errbuf, sizeof errbuf, "(-0x%x) %s", -err, mbed_errbuf);
 #else
-	rb_snprintf(errbuf, sizeof errbuf, "-0x%x", -err);
+	(void) rb_snprintf(errbuf, sizeof errbuf, "-0x%x", -err);
 #endif
 
 	return errbuf;
@@ -180,6 +180,14 @@ rb_mbedtls_cfg_new(void)
 
 	mbedtls_ssl_conf_authmode(&cfg->server_cfg, MBEDTLS_SSL_VERIFY_OPTIONAL);
 	mbedtls_ssl_conf_authmode(&cfg->client_cfg, MBEDTLS_SSL_VERIFY_NONE);
+
+	#ifdef MBEDTLS_SSL_LEGACY_BREAK_HANDSHAKE
+	mbedtls_ssl_conf_legacy_renegotiation(&cfg->client_cfg, MBEDTLS_SSL_LEGACY_BREAK_HANDSHAKE);
+	#endif
+
+	#ifdef MBEDTLS_SSL_SESSION_TICKETS_DISABLED
+	mbedtls_ssl_conf_session_tickets(&cfg->client_cfg, MBEDTLS_SSL_SESSION_TICKETS_DISABLED);
+	#endif
 
 	return cfg;
 }
