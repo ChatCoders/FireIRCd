@@ -84,6 +84,11 @@ mr_authenticate(struct Client *client_p, struct Client *source_p,
         return 0;
     }
 
+    if (*parv[1] == ':' || strchr(parv[1], ' ')) {
+        exit_client(client_p, client_p, client_p, "Malformed AUTHENTICATE");
+        return 0;
+    }
+
     saslserv_p = find_named_client(ConfigFileEntry.sasl_service);
     if (saslserv_p == NULL || !IsService(saslserv_p)) {
         sendto_one(source_p, form_str(ERR_SASLABORTED), me.name, EmptyString(source_p->name) ? "*" : source_p->name);
