@@ -244,6 +244,7 @@ struct config_file_entry
 	int expire_override_time;
         int away_interval;
 	int certfp_method;
+	int tls_ciphers_oper_only;
 };
 
 struct config_channel_entry

@@ -2406,6 +2406,7 @@ static struct ConfEntry conf_general_table[] =
 	{ "expire_override_time",	CF_TIME, NULL, 0, &ConfigFileEntry.expire_override_time},
         { "away_interval",    CF_INT,   NULL, 0, &ConfigFileEntry.away_interval    },
 	{ "certfp_method",	CF_STRING, conf_set_general_certfp_method, 0, NULL },
+	{ "tls_ciphers_oper_only",	CF_YESNO, NULL, 0, &ConfigFileEntry.tls_ciphers_oper_only	},
         { "\0", 		0, 	  NULL, 0, NULL }
 };
 
