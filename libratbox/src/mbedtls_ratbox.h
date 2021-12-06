@@ -43,6 +43,111 @@
 static const char rb_mbedtls_personal_str[] = "charybdis/librb personalization string";
 
 /*
+ * Default list of supported ciphersuites
+ * The user can override this with the ssl_cipher_list option in ircd.conf
+ *
+ * The format for this option is the same as the macro names below, but
+ * with underscores replaced with hyphens, and without the initial MBEDTLS_
+ *
+ * For example;
+ * ssl_cipher_list = "TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384"
+ *
+ * Multiple ciphersuites can be separated by colons (:)
+ *
+ * ************************************************************************
+ *
+ * The ordering of the following list should be intuitive. Within the list;
+ *
+ * * All AEAD forward-secret ciphersuites are located first [1]
+ * * All SHA2 forward-secret ciphersuites are located second
+ * * All remaining forward-secret ciphersuites are located third
+ * * All non-forward-secret ciphersuites are located last, in the same order
+ *
+ *   [1] Because in practice, they are the only secure ciphersuites available;
+ *       the ETM extension for CBC ciphersuites has not seen wide adoption.
+ *
+ * In practice, all clients SHOULD support an AEAD forward-secret cipher,
+ * which the server will then negotiate as they are preferred.
+ *
+ * This choice can be revisited in future; please consult me first.  -- amdj
+ */
+static const int rb_mbedtls_ciphersuites[] = {
+
+	// AEAD forward-secret ciphersuites
+
+	MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+	MBEDTLS_TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_GCM_SHA384,
+	MBEDTLS_TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+	MBEDTLS_TLS_ECDHE_RSA_WITH_CAMELLIA_256_GCM_SHA384,
+	MBEDTLS_TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,
+	MBEDTLS_TLS_DHE_RSA_WITH_CAMELLIA_256_GCM_SHA384,
+	MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_256_CCM,
+	MBEDTLS_TLS_DHE_RSA_WITH_AES_256_CCM,
+
+	MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+	MBEDTLS_TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_GCM_SHA256,
+	MBEDTLS_TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+	MBEDTLS_TLS_ECDHE_RSA_WITH_CAMELLIA_128_GCM_SHA256,
+	MBEDTLS_TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,
+	MBEDTLS_TLS_DHE_RSA_WITH_CAMELLIA_128_GCM_SHA256,
+	MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_128_CCM,
+	MBEDTLS_TLS_DHE_RSA_WITH_AES_128_CCM,
+
+	// SHA2 forward-secret ciphersuites
+
+	MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384,
+	MBEDTLS_TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_CBC_SHA384,
+	MBEDTLS_TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,
+	MBEDTLS_TLS_ECDHE_RSA_WITH_CAMELLIA_256_CBC_SHA384,
+	MBEDTLS_TLS_DHE_RSA_WITH_AES_256_CBC_SHA256,
+	MBEDTLS_TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256,
+
+	MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
+	MBEDTLS_TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_CBC_SHA256,
+	MBEDTLS_TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,
+	MBEDTLS_TLS_ECDHE_RSA_WITH_CAMELLIA_128_CBC_SHA256,
+	MBEDTLS_TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,
+	MBEDTLS_TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA256,
+
+	// Remaining forward-secret ciphersuites
+
+	MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
+	MBEDTLS_TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+	MBEDTLS_TLS_DHE_RSA_WITH_AES_256_CBC_SHA,
+	MBEDTLS_TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA,
+
+	MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
+	MBEDTLS_TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+	MBEDTLS_TLS_DHE_RSA_WITH_AES_128_CBC_SHA,
+	MBEDTLS_TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA,
+
+	// Non-forward-secret ciphersuites
+
+	MBEDTLS_TLS_RSA_WITH_AES_256_GCM_SHA384,
+	MBEDTLS_TLS_RSA_WITH_CAMELLIA_256_GCM_SHA384,
+	MBEDTLS_TLS_RSA_WITH_AES_256_CCM,
+
+	MBEDTLS_TLS_RSA_WITH_AES_128_GCM_SHA256,
+	MBEDTLS_TLS_RSA_WITH_CAMELLIA_128_GCM_SHA256,
+	MBEDTLS_TLS_RSA_WITH_AES_128_CCM,
+
+	MBEDTLS_TLS_RSA_WITH_AES_256_CBC_SHA256,
+	MBEDTLS_TLS_RSA_WITH_CAMELLIA_256_CBC_SHA256,
+
+	MBEDTLS_TLS_RSA_WITH_AES_128_CBC_SHA256,
+	MBEDTLS_TLS_RSA_WITH_CAMELLIA_128_CBC_SHA256,
+
+	MBEDTLS_TLS_RSA_WITH_AES_256_CBC_SHA,
+	MBEDTLS_TLS_RSA_WITH_CAMELLIA_256_CBC_SHA,
+
+	MBEDTLS_TLS_RSA_WITH_AES_128_CBC_SHA,
+	MBEDTLS_TLS_RSA_WITH_CAMELLIA_128_CBC_SHA,
+
+	// The end of list sentinel
+	0
+};
+
+/*
  * YES, this is a hardcoded CA certificate.
  *
  * BEFORE YOU THROW YOUR ARMS UP IN A PANIC ABOUT A BACKDOOR, READ THIS TEXT!
