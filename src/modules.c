@@ -556,8 +556,8 @@ do_modlist(struct Client *source_p, const char *pattern)
 }
 
 /* unload and reload all modules */
-static int
-mo_modrestart(struct Client *client_p, struct Client *source_p, int parc, const char **parv)
+static void
+modules_do_restart(void *unused)
 {
     if(!IsOperAdmin(source_p)) {
         sendto_one(source_p, form_str(ERR_NOPRIVS),
