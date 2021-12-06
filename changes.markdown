@@ -1,5 +1,7 @@
 # sIRCd Changes
 
+## Changes since Version 1.1.4
+
 ## Changes since Version 1.1.3
 
 - [X] - m_whois: Add hide_uids_in_whois option, default to "YES"
