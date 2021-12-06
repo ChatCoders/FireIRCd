@@ -441,36 +441,40 @@ add_connection(struct Listener *listener, rb_fde_t *F, struct sockaddr *sai, str
      * the client has already been checked out in accept_connection
      */
     new_client = make_client(NULL);
+    new_client->localClient->F = F;
+
+	memcpy(&new_client->localClient->ip, sai, sizeof(struct rb_sockaddr_storage));
+	memcpy(&new_client->preClient->lip, lai, sizeof(struct rb_sockaddr_storage));
+
+	/*
+	 * copy address to 'sockhost' as a string, copy it to host too
+	 * so we have something valid to put into error messages...
+	 */
+	rb_inet_ntop_sock((struct sockaddr *)&new_client->localClient->ip, new_client->sockhost,
+		sizeof(new_client->sockhost));
+
+	rb_strlcpy(new_client->host, new_client->sockhost, sizeof(new_client->host));
+
 
     if (listener->ssl) {
         rb_fde_t *xF[2];
-        if(rb_socketpair(AF_UNIX, SOCK_STREAM, 0, &xF[0], &xF[1], "Incoming ssld Connection") == -1) {
-            free_client(new_client);
+        if(rb_socketpair(AF_UNIX, SOCK_STREAM, 0, &xF[0], &xF[1], "Incoming ssld Connection") == -1) 
+{
+            SetIOError(new_client);
+		exit_client(new_client, new_client, new_client, "Fatal Error");
             return;
         }
         new_client->localClient->ssl_ctl = start_ssld_accept(F, xF[1], new_client->localClient->connid);        /* this will close F for us */
         if(new_client->localClient->ssl_ctl == NULL) {
-            free_client(new_client);
+            SetIOError(new_client);
+            exit_client(new_client, new_client, new_client, "Service Unavailable");
             return;
         }
         F = xF[0];
+	new_client->localClient->F = F;
         SetSSL(new_client);
     }
 
-    memcpy(&new_client->localClient->ip, sai, sizeof(struct rb_sockaddr_storage));
-    memcpy(&new_client->preClient->lip, lai, sizeof(struct rb_sockaddr_storage));
-
-    /*
-     * copy address to 'sockhost' as a string, copy it to host too
-     * so we have something valid to put into error messages...
-     */
-    rb_inet_ntop_sock((struct sockaddr *)&new_client->localClient->ip, new_client->sockhost,
-                      sizeof(new_client->sockhost));
-
-
-    rb_strlcpy(new_client->host, new_client->sockhost, sizeof(new_client->host));
-
-    new_client->localClient->F = F;
     new_client->localClient->listener = listener;
 
     ++listener->ref_count;
