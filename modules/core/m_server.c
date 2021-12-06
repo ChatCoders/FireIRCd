@@ -75,6 +75,7 @@ mr_server(struct Client *client_p, struct Client *source_p, int parc, const char
     struct Client *target_p;
     int hop;
     struct Capability *cap;
+    int ret;
 
     name = parv[1];
     hop = atoi(parv[2]);
@@ -122,7 +123,12 @@ mr_server(struct Client *client_p, struct Client *source_p, int parc, const char
 
     /* Now we just have to call check_server and everything should be
      * check for us... -A1kmm. */
-    switch (check_server(name, client_p)) {
+    ret = check_server(name, client_p);
+	switch (ret)
+	{
+    case 0:
+		/* success */
+		break;
     case -1:
         if(ConfigFileEntry.warn_no_nline) {
             sendto_realops_snomask(SNO_GENERAL, L_ALL,
@@ -191,6 +197,16 @@ mr_server(struct Client *client_p, struct Client *source_p, int parc, const char
 
         exit_client(client_p, client_p, client_p, "Access denied, requires SSL/TLS but is plaintext");
         return 0;
+	default:
+		sendto_realops_snomask(SNO_GENERAL, L_ALL,
+		     "Connection from servername %s rejected, unknown error %d",
+		     name, ret);
+		ilog(L_SERVER, "Access denied, unknown error %d for server %s%s", ret,
+		     EmptyString(client_p->name) ? name : "",
+		     log_client_name(client_p, SHOW_IP));
+
+		exit_client(client_p, client_p, client_p, "Unknown error.");
+		return 0;
     }
 
     /* require TS6 for direct links */
