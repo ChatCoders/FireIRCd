@@ -786,12 +786,12 @@ server_estab(struct Client *client_p)
     if(IsCapable(client_p, CAP_ZIP)) {
         start_zlib_session(client_p);
     }
-    sendto_one(client_p, "SVINFO %d %d 0 :%ld", TS_CURRENT, TS_MIN, (long int)rb_current_time());
-
-    client_p->servptr = &me;
+        client_p->servptr = &me;
 
     if(IsAnyDead(client_p))
         return CLIENT_EXITED;
+
+	sendto_one(client_p, "SVINFO %d %d 0 :%ld", TS_CURRENT, TS_MIN, (long int)rb_current_time());
 
     SetServer(client_p);
 
