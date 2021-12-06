@@ -710,9 +710,14 @@ send_new_ssl_certs(const char *ssl_cert, const char *ssl_private_key, const char
         ircd_ssl_ok = 0;
         return;
     }
-    RB_DLINK_FOREACH(ptr, ssl_daemons.head) {
+    RB_DLINK_FOREACH(ptr, ssl_daemons.head) 
+	{
         ssl_ctl_t *ctl = ptr->data;
-        send_certfp_method(ctl, method);
+
+	if (ctl->dead || ctl->shutdown)
+			continue;
+
+	send_certfp_method(ctl, method);
         send_new_ssl_certs_one(ctl, ssl_cert, ssl_private_key, ssl_dh_params, ssl_cipher_list);
     }
 }
