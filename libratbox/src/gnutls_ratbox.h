@@ -32,6 +32,5 @@ static const char rb_gnutls_default_priority_str[] = ""
 	"!MD5:"
 	"+VERS-TLS1.2:"
 	"+VERS-TLS1.1:"
-	"!VERS-TLS1.0:"
 	"!VERS-SSL3.0:"
 	"%SAFE_RENEGOTIATION";
