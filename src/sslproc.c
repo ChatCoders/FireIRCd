@@ -343,8 +343,8 @@ ssl_process_zipstats(ssl_ctl_t * ctl, ssl_ctl_buf_t * ctl_buf)
     char *parv[7];
     int parc = rb_string_to_array(ctl_buf->buf, parv, sizeof(parv) - 1);
 
-	if (parc < 6)
-		return;
+    if (parc < 6)
+        return;
     server = find_server(NULL, parv[1]);
     if(server == NULL || server->localClient == NULL || !IsCapable(server, CAP_ZIP))
         return;
