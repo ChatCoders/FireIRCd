@@ -1,5 +1,5 @@
 /*
- *  ircd-ratbox: A slightly useful ircd
+ *  ircd-ratbox: A slightly useful ircd.
  *  m_webirc.c: Makes CGI:IRC users appear as coming from their real host
  *
  *  Copyright (C) 1990 Jarkko Oikarinen and University of Oulu, Co Center
@@ -64,12 +64,6 @@ struct Message webirc_msgtab = {
 mapi_clist_av1 webirc_clist[] = { &webirc_msgtab, NULL };
 DECLARE_MODULE_AV1(webirc, NULL, NULL, webirc_clist, NULL, NULL, "$Revision: 20702 $");
 
-static void new_local_user(void *data);
-mapi_hfn_list_av1 webirc_hfnlist[] = {
-    { "new_local_user", (hookfn) new_local_user },
-    { NULL, NULL }
-};
-
 /*
  * mr_webirc - webirc message handler
  *      parv[1] = password
@@ -82,8 +76,6 @@ mr_webirc(struct Client *client_p, struct Client *source_p, int parc, const char
 {
     struct ConfItem *aconf;
     const char *encr;
-
-    int secure = 0;
 
     if (!strchr(parv[4], '.') && !strchr(parv[4], ':')) {
         sendto_one(source_p, "NOTICE * :Invalid IP");
@@ -102,10 +94,6 @@ mr_webirc(struct Client *client_p, struct Client *source_p, int parc, const char
         sendto_one(source_p, "NOTICE * :Not a CGI:IRC auth block");
         return 0;
     }
-    if (!IsSSL(source_p) && aconf->flags & CONF_FLAGS_NEED_SSL) {
-        sendto_one(source_p, "NOTICE * :Your CGI:IRC block requires SSL");
-        return 0;
-    }
     if (EmptyString(aconf->passwd)) {
         sendto_one(source_p, "NOTICE * :CGI:IRC auth blocks must have a password");
         return 0;
@@ -121,23 +109,6 @@ mr_webirc(struct Client *client_p, struct Client *source_p, int parc, const char
     if (strcmp(encr, aconf->passwd)) {
         sendto_one(source_p, "NOTICE * :CGI:IRC password incorrect");
         return 0;
-    }
-
-    if (parc >= 6) {
-        const char *s;
-        for (s = parv[5]; s != NULL; (s = strchr(s, ' '))) {
-            if (!ircncmp(s, "secure", 6) && (s[6] == '=' || s[6] == ' ' || s[6] == '\0'))
-                secure = 1;
-        }
-    }
-
-    if (secure && !IsSSL(source_p)) {
-        sendto_one(source_p, "NOTICE * :CGI:IRC is not connected securely; marking you as insecure");
-        secure = 0;
-    }
-
-    if (!secure) {
-        SetInsecure(source_p);
     }
 
 
@@ -164,14 +135,4 @@ mr_webirc(struct Client *client_p, struct Client *source_p, int parc, const char
 
     sendto_one(source_p, "NOTICE * :Congratulations, your host is reset via I:line: %s %s", parv[3], parv[4]);
     return 0;
-}
-
-static void
-new_local_user(void *data)
-{
-    struct Client *source_p = data;
-    struct ConfItem *aconf = source_p->localClient->att_conf;
-
-    if (!irccmp(aconf->info.name, "webirc."))
-        exit_client(source_p, source_p, &me, "Cannot log in using a WEBIRC block");
 }
