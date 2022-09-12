@@ -494,7 +494,7 @@ check_klines(void)
             }
 
             sendto_realops_snomask(SNO_GENERAL, L_ALL,
-                                   "KLINE active for %s",
+                                   "Disconnecting K-Lined user %s",
                                    get_client_name(client_p, HIDE_IP));
 
             notify_banned_client(client_p, aconf, K_LINED);
