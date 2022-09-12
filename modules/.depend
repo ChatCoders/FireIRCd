@@ -923,7 +923,7 @@ m_rehash.so: m_rehash.c ../include/stdinc.h \
  ../include/parse.h ../include/irc_dictionary.h ../include/modules.h \
  ../include/parse.h ../include/msg.h ../include/hook.h \
  ../include/hostmask.h ../include/reject.h ../include/hash.h \
- ../include/cache.h
+ ../include/cache.h ../include/sslproc.h
 m_restart.so: m_restart.c ../include/stdinc.h \
  ../libratbox/include/ratbox_lib.h ../libratbox/include/librb-config.h \
  ../libratbox/include/rb_tools.h ../libratbox/include/rb_memory.h \
@@ -1096,6 +1096,24 @@ m_snote.so: m_snote.c ../include/stdinc.h \
  ../include/msg.h ../include/parse.h ../include/irc_dictionary.h \
  ../include/modules.h ../include/parse.h ../include/msg.h \
  ../include/hook.h
+m_starttls.so: m_starttls.c ../include/stdinc.h \
+ ../libratbox/include/ratbox_lib.h ../libratbox/include/librb-config.h \
+ ../libratbox/include/rb_tools.h ../libratbox/include/rb_memory.h \
+ ../libratbox/include/rb_commio.h ../libratbox/include/rb_balloc.h \
+ ../libratbox/include/rb_linebuf.h ../libratbox/include/rb_snprintf.h \
+ ../libratbox/include/rb_event.h ../libratbox/include/rb_helper.h \
+ ../libratbox/include/rb_rawbuf.h ../libratbox/include/rb_patricia.h \
+ ../include/config.h ../include/setup.h ../include/defaults.h \
+ ../include/ircd_defs.h ../include/logger.h ../include/send.h \
+ ../include/client.h ../include/channel.h ../include/res.h \
+ ../include/common.h ../include/reslib.h ../include/match.h \
+ ../include/ircd.h ../include/snomask.h ../include/client.h \
+ ../include/privilege.h ../include/stdinc.h ../include/common.h \
+ ../include/match.h ../include/hash.h ../include/ircd.h \
+ ../include/numeric.h ../include/send.h ../include/msg.h \
+ ../include/modules.h ../include/parse.h ../include/irc_dictionary.h \
+ ../include/msg.h ../include/hook.h ../include/sslproc.h \
+ ../include/logger.h
 m_stats.so: m_stats.c ../include/stdinc.h \
  ../libratbox/include/ratbox_lib.h ../libratbox/include/librb-config.h \
  ../libratbox/include/rb_tools.h ../libratbox/include/rb_memory.h \
@@ -1117,7 +1135,7 @@ m_stats.so: m_stats.c ../include/stdinc.h \
  ../include/parse.h ../include/irc_dictionary.h ../include/modules.h \
  ../include/parse.h ../include/msg.h ../include/hook.h ../include/hook.h \
  ../include/s_newconf.h ../include/hash.h ../include/reject.h \
- ../include/whowas.h
+ ../include/whowas.h ../include/sslproc.h
 m_svinfo.so: m_svinfo.c ../include/stdinc.h \
  ../libratbox/include/ratbox_lib.h ../libratbox/include/librb-config.h \
  ../libratbox/include/rb_tools.h ../libratbox/include/rb_memory.h \
