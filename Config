@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Copyright 2014 Sam Dodrill <shadowh511@gmail.com>
@@ -14,7 +14,7 @@ installloc = ("$HOME/ircd")
 installloc2 = os.getenv("HOME")
 
 def promptUser(prompt, default):
-    inp = raw_input("%s [%s]> " % (prompt, default))
+    inp = input("%s [%s]> " % (prompt, default))
 
     if inp == "":
         return default
@@ -53,7 +53,7 @@ print("all servers in your network or you risk desyncs. The maximum is 50.")
 nicklen = 100
 while nicklen > 51:
     if nicklen != 100:
-        print "Error: you must choose a value under 50."
+        print ("Error: you must choose a value under 50.")
 
     nicklen = int(promptUser("Maximum nickname length?", "31"))
 
@@ -66,7 +66,7 @@ print("all servers in your network or you risk netsplits. The maximum is 780.")
 topiclen = 800
 while topiclen > 781:
     if topiclen != 800:
-        print "Error: you must choose a value under 780."
+        print ("Error: you must choose a value under 780.")
 
     topiclen = int(promptUser("Maximum topic length?", "390"))
 
@@ -113,7 +113,7 @@ print("\nThat should be it for now. Running %s" % " ".join(configflags))
 print("")
 print("")
 print("")
-raw_input("Press enter to install sIRCd...")
+input("Press enter to install sIRCd...")
 
 
 
