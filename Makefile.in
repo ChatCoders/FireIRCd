@@ -76,7 +76,7 @@ build:
 		sh configure; \
 	fi
 	@if [ -d .git ] ; then \
-		revh=`git log -1 --pretty=format:git-%h`;\
+		revh=`git log -1 --pretty=format:%h`;\
 		[ -z "$$revh" ] || echo '#define SERNO "'$$revh'"' >include/serno.h ; \
 	elif [ -d .hg ] ; then \
 		revh=`hg parents --template '{date|shortdate}_{node|short}' 2>/dev/null | sed -e s/-//g -e s/_/-/`;\
