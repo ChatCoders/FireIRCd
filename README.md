@@ -1,12 +1,12 @@
-# sIRCd
-[![CI](https://github.com/CustomIRCd/sIRCd/actions/workflows/ci.yml/badge.svg)](https://github.com/CustomIRCd/sIRCd/actions/workflows/ci.yml)
+# ChamberIRCd
+[![CI](https://github.com/ChatCoders/ChamberIRCd/actions/workflows/ci.yml/badge.svg)](https://github.com/ChatCoders/ChamberIRCd/actions/workflows/ci.yml)
 
-**sIRCd** is a high performance, lightweight, and scalable
+**ChamberIRCd** is a high performance, lightweight, and scalable
 IRC daemon. It is a fork of the now-defunct ShadowIRCD and seeks to continue in
 the direction ShadowIRCD was headed.
 
 **ChatIRCd**
-some of the coding from ChatIRCd has been used on sIRCd. Credit to Ben (www.chatlounge.net)
+some of the coding from ChatIRCd has been used on ChamberIRCd. Credit to Ben (www.chatlounge.net)
 
 ## Supported Platforms
 
@@ -28,7 +28,7 @@ directions.
 
 ## Support
 
-The official channel for sIRCd is `#devlounge` on
-`irc.chatfreedom.us`. 
+The official channel for ChamberIRCd is `#devlounge` on
+`irc.chamberIRC.net`. 
 
 Please use ***GitHub issue tracker*** for any issues
