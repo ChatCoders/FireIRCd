@@ -574,7 +574,7 @@ register_local_user(struct Client *client_p, struct Client *source_p, const char
     user_welcome(source_p);
 
     if(source_p->localClient->cipher_string != NULL)
-        sendto_one_notice(source_p, ":*** You are connected to %s with the SSL cipher %s.",
+        sendto_one_notice(source_p, ":*** You are connected to %s with %s",
                           me.name, source_p->localClient->cipher_string);
 
     free_pre_client(source_p);
