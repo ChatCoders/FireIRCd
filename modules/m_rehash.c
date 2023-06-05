@@ -110,19 +110,6 @@ rehash_motd(struct Client *source_p)
 }
 
 static void
-rehash_rules(struct Client *source_p)
-{
-    sendto_realops_snomask(SNO_GENERAL, L_NETWIDE,
-                           "%s is forcing re-reading of RULES file",
-                           get_oper_name(source_p));
-    if (!MyConnect(source_p))
-        remote_rehash_oper_p = source_p;
-
-    free_cachefile(user_rules);
-    user_rules = cache_file(RPATH, "ircd.rules", 0);
-}
-
-static void
 rehash_omotd(struct Client *source_p)
 {
     sendto_realops_snomask(SNO_GENERAL, L_NETWIDE,
@@ -296,7 +283,6 @@ static struct hash_commands rehash_commands[] = {
     {"DNS", 	rehash_dns		},
     {"SSLD",	rehash_ssld		},
     {"MOTD", 	rehash_motd		},
-    {"RULES",       rehash_rules            },
     {"OMOTD", 	rehash_omotd		},
     {"TKLINES", 	rehash_tklines		},
     {"TDLINES", 	rehash_tdlines		},
