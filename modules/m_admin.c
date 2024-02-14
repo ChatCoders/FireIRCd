@@ -106,7 +106,6 @@ m_admin(struct Client *client_p, struct Client *source_p, int parc, const char *
     return 0;
 }
 
-
 /*
  * ms_admin - ADMIN command handler, used for OPERS as well
  *      parv[1] = servername
@@ -121,7 +120,6 @@ ms_admin(struct Client *client_p, struct Client *source_p, int parc, const char 
 
     return 0;
 }
-
 
 /*
  * do_admin

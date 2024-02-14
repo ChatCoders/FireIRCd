@@ -146,7 +146,6 @@ initwhowas()
         WHOWASHASH[i] = NULL;
 }
 
-
 static void
 add_whowas_to_clist(struct Whowas **bucket, struct Whowas *whowas)
 {

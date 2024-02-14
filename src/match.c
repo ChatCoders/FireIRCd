@@ -162,7 +162,6 @@ backtrack:
     }
 }
 
-
 #define MATCH_MAX_CALLS 512	/* ACK! This dies when it's less that this
 				   and we have long lines to parse */
 /** Check a string against a mask.
@@ -394,7 +393,6 @@ int match_cidr(const char *s1, const char *s2)
     if (ip == NULL)
         return 0;
     *ip++ = '\0';
-
 
     len = strrchr(ipmask, '/');
     if (len == NULL)

@@ -77,7 +77,6 @@ m_whowas(struct Client *client_p, struct Client *source_p, int parc, const char 
             last_used = rb_current_time();
     }
 
-
     if(parc > 2)
         max = atoi(parv[2]);
 

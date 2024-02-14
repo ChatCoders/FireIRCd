@@ -129,7 +129,6 @@ free_ban(struct Ban *bptr)
     rb_bh_free(ban_heap, bptr);
 }
 
-
 /* find_channel_membership()
  *
  * input	- channel to find them in, client to find
@@ -1185,7 +1184,6 @@ check_splitmode(void *unused)
     }
 }
 
-
 /* allocate_topic()
  *
  * input	- channel to allocate topic for
@@ -1696,7 +1694,6 @@ check_channel_name_loc(struct Client *source_p, const char *name)
             if(*p < 33 || *p > 126)
                 return 0;
     }
-
 
     return 1;
 }

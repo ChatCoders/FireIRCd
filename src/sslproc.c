@@ -24,7 +24,6 @@
 #include <ratbox_lib.h>
 #include "stdinc.h"
 
-
 #include "s_conf.h"
 #include "logger.h"
 #include "listener.h"
@@ -55,7 +54,6 @@ typedef struct _ssl_ctl_buf {
     int nfds;
 } ssl_ctl_buf_t;
 
-
 struct _ssl_ctl {
     rb_dlink_node node;
     int cli_count;
@@ -73,7 +71,6 @@ static void send_new_ssl_certs_one(ssl_ctl_t * ctl, const char *ssl_cert,
                                    const char *ssl_cipher_list);
 static void send_init_prng(ssl_ctl_t * ctl, prng_seed_t seedtype, const char *path);
 static void send_certfp_method(ssl_ctl_t *ctl, int method);
-
 
 static rb_dlink_list ssl_daemons;
 
@@ -398,7 +395,6 @@ ssl_process_dead_fd(ssl_ctl_t * ctl, ssl_ctl_buf_t * ctl_buf)
     exit_client(client_p, client_p, &me, reason);
 }
 
-
 static void
 ssl_process_cipher_string(ssl_ctl_t *ctl, ssl_ctl_buf_t *ctl_buf)
 {
@@ -421,7 +417,6 @@ ssl_process_cipher_string(ssl_ctl_t *ctl, ssl_ctl_buf_t *ctl_buf)
         client_p->localClient->cipher_string = rb_strdup(cstring);
     }
 }
-
 
 static void
 ssl_process_certfp(ssl_ctl_t * ctl, ssl_ctl_buf_t * ctl_buf)
@@ -530,7 +525,6 @@ ssl_process_cmd_recv(ssl_ctl_t * ctl)
 
 }
 
-
 static void
 ssl_read_ctl(rb_fde_t * F, void *data)
 {
@@ -637,7 +631,6 @@ ssl_cmd_write_queue(ssl_ctl_t * ctl, rb_fde_t ** F, int count, const void *buf, 
     ssl_write_ctl(ctl->F, ctl);
 }
 
-
 static void
 send_new_ssl_certs_one(ssl_ctl_t * ctl, const char *ssl_cert, const char *ssl_private_key,
                        const char *ssl_dh_params, const char *ssl_cipher_list)
@@ -723,7 +716,6 @@ send_new_ssl_certs(const char *ssl_cert, const char *ssl_private_key, const char
         send_new_ssl_certs_one(ctl, ssl_cert, ssl_private_key, ssl_dh_params, ssl_cipher_list);
     }
 }
-
 
 ssl_ctl_t *
 start_ssld_accept(rb_fde_t * sslF, rb_fde_t * plainF, uint32_t id)

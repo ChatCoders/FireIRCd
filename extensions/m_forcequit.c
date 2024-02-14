@@ -31,7 +31,6 @@
  *
  */
 
-
 #include "stdinc.h"
 #include "client.h"
 #include "hash.h"		/* for find_client() */
@@ -41,7 +40,6 @@
 #include "s_conf.h"
 #include "modules.h"
 #include "s_newconf.h"
-
 
 static int me_forcequit(struct Client *, struct Client *, int, const char **);
 static int mo_forcequit(struct Client *, struct Client *, int, const char **);
@@ -101,7 +99,6 @@ mo_forcequit(struct Client *client_p, struct Client *source_p, int parc, const c
     ilog(L_KILL, "FORCEQUIT called for [%s] by %s!%s@%s",
          target_p->name, source_p->name, source_p->username, source_p->host);
 
-
     target_p->flags |= FLAGS_NORMALEX;
     exit_client(client_p, target_p, target_p, reason);
 
@@ -148,5 +145,3 @@ me_forcequit(struct Client *client_p, struct Client *source_p, int parc, const c
 
     return 0;
 }
-
-

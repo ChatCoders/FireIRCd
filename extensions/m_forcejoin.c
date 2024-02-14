@@ -31,7 +31,6 @@
  *
  */
 
-
 #include "stdinc.h"
 #include "client.h"
 #include "hash.h"		/* for find_client() */
@@ -350,7 +349,6 @@ void user_join_override(struct Client * client_p, struct Client * source_p, stru
             sendto_one_notice(source_p, ":*** Notice -- Creating channel %s", chptr->chname);
         }
     }
-
 
     return;
 }

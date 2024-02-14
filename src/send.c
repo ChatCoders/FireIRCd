@@ -170,7 +170,6 @@ send_queued(struct Client *to)
                      data)->buf + to->localClient->buf_sendq.writeofs;
 #endif
 
-
             ClearFlush(to);
 
             to->localClient->sendB += retlen;
@@ -332,7 +331,6 @@ sendto_one_notice(struct Client *target_p, const char *pattern, ...)
     _send_linebuf(dest_p, &linebuf);
     rb_linebuf_donebuf(&linebuf);
 }
-
 
 /* sendto_one_numeric()
  *
@@ -729,7 +727,6 @@ sendto_channel_local_with_capability(int type, int caps, int negcaps, struct Cha
     _sendto_channel_local_with_capability_butone(NULL, type, caps, negcaps, chptr, pattern, &args);
     va_end(args);
 }
-
 
 /* sendto_channel_local_with_capability()
  *
@@ -1255,7 +1252,6 @@ kill_client(struct Client *target_p, struct Client *diedie, const char *pattern,
     send_linebuf(target_p, &linebuf);
     rb_linebuf_donebuf(&linebuf);
 }
-
 
 /*
  * kill_client_serv_butone

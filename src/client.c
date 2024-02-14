@@ -99,7 +99,6 @@ struct abort_client {
 
 static rb_dlink_list abort_list;
 
-
 /*
  * init_client
  *
@@ -127,7 +126,6 @@ init_client(void)
 
     nd_dict = irc_dictionary_create(irccmp);
 }
-
 
 /*
  * make_client - create a new Client struct and set it to initial state.
@@ -727,7 +725,6 @@ remove_client_from_list(struct Client *client_p)
     update_client_exit_stats(client_p);
 }
 
-
 /*
  * find_person	- find person by (nick)name.
  * inputs	- pointer to name
@@ -757,7 +754,6 @@ find_named_person(const char *name)
         return (c2ptr);
     return (NULL);
 }
-
 
 /*
  * find_chasing - find the client structure for a nick name (user)
@@ -1114,7 +1110,6 @@ exit_aborted_clients(void *unused)
     }
 }
 
-
 /*
  * dead_link - Adds client to a list of clients that need an exit_client()
  *
@@ -1141,7 +1136,6 @@ dead_link(struct Client *client_p, int sendqex)
     SetClosing(client_p);
     rb_dlinkAdd(abt, &abt->node, &abort_list);
 }
-
 
 /* This does the remove of the user from channels..local or remote */
 static inline void
@@ -1358,7 +1352,6 @@ exit_local_server(struct Client *client_p, struct Client *source_p, struct Clien
     else
         s_assert(0);
 
-
     close_connection(source_p);
 
     if(ConfigServerHide.flatten_links)
@@ -1390,7 +1383,6 @@ exit_local_server(struct Client *client_p, struct Client *source_p, struct Clien
     rb_dlinkAddAlloc(source_p, &dead_list);
     return 0;
 }
-
 
 /*
  * This assumes IsPerson(source_p) == TRUE && MyConnect(source_p) == TRUE
@@ -1446,7 +1438,6 @@ exit_local_client(struct Client *client_p, struct Client *source_p, struct Clien
     rb_dlinkAddAlloc(source_p, &dead_list);
     return(CLIENT_EXITED);
 }
-
 
 /*
 ** exit_client - This is old "m_bye". Name  changed, because this is not a
@@ -1542,7 +1533,6 @@ count_remote_client_memory(size_t * count, size_t * remote_client_memory_used)
     *count = rcount - lcount;
     *remote_client_memory_used = *count * (sizeof(void *) + sizeof(struct Client));
 }
-
 
 /*
  * accept processing, this adds a form of "caller ID" to ircd
@@ -1732,7 +1722,6 @@ allocate_away(struct Client *client_p)
         client_p->user->away = rb_bh_alloc(away_heap);
 }
 
-
 void
 free_away(struct Client *client_p)
 {
@@ -1755,7 +1744,6 @@ init_uid(void)
 
     current_uid[9] = '\0';
 }
-
 
 char *
 generate_uid(void)
@@ -1853,8 +1841,6 @@ close_connection(struct Client *client_p)
     ClearMyConnect(client_p);
     SetIOError(client_p);
 }
-
-
 
 void
 error_exit_client(struct Client *client_p, int error)

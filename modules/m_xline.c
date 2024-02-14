@@ -92,7 +92,6 @@ static void handle_remote_unxline(struct Client *source_p, const char *name);
 static void remove_xline(struct Client *source_p, const char *name,
                          int propagated);
 
-
 /* m_xline()
  *
  * parv[1] - thing to xline

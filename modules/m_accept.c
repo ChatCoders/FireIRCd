@@ -195,7 +195,6 @@ add_accept(struct Client *source_p, struct Client *target_p)
     rb_dlinkAddAlloc(source_p, &target_p->on_allow_list);
 }
 
-
 /*
  * list_accepts()
  *

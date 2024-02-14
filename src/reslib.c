@@ -92,7 +92,6 @@
 #define DNS_LABELTYPE_BITSTRING 0x41
 #define DNS_MAXLINE 128
 
-
 struct rb_sockaddr_storage irc_nsaddr_list[IRCD_MAXNS];
 int irc_nscount = 0;
 char irc_domain[IRCD_RES_HOSTLEN + 1];
@@ -627,7 +626,6 @@ labellen(const unsigned char *lp)
     return(l);
 }
 
-
 /*
  * printable(ch)
  *      Thinking in noninternationalized USASCII (per the DNS spec),
@@ -694,7 +692,6 @@ irc_ns_name_pton(const char *src, unsigned char *dst, size_t dstsiz)
     bp = dst;
     eom = dst + dstsiz;
     label = bp++;
-
 
     while ((c = *src++) != 0) {
         if (escaped) {

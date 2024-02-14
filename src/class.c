@@ -197,7 +197,6 @@ add_class(struct Class *classptr)
     }
 }
 
-
 /*
  * find_class
  *

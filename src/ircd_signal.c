@@ -38,7 +38,6 @@ dummy_handler(int sig)
     /* Empty */
 }
 
-
 static void
 sigchld_handler(int sig)
 {
