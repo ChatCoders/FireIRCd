@@ -39,7 +39,6 @@
 
 static int mo_okick(struct Client *client_p, struct Client *source_p, int parc, const char *parv[]);
 
-
 struct Message okick_msgtab = {
     "OKICK", 0, 0, 0, MFLG_SLOW,
     {mg_unreg, mg_not_oper, mg_ignore, mg_ignore, mg_ignore, {mo_okick, 4}}
@@ -93,7 +92,6 @@ mo_okick(struct Client *client_p, struct Client *source_p, int parc, const char 
         sendto_one_numeric(source_p, ERR_NOSUCHCHANNEL, form_str(ERR_NOSUCHCHANNEL), name);
         return 0;
     }
-
 
     if((p = strchr(parv[2], ',')))
         *p = '\0';

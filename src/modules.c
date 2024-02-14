@@ -25,7 +25,6 @@
 
 #include "stdinc.h"
 
-
 #include "modules.h"
 #include "logger.h"
 #include "ircd.h"
@@ -38,8 +37,6 @@
 #include "ircd_defs.h"
 #include "match.h"
 #include "s_serv.h"
-
-
 
 /* -TimeMr14C:
  * I have moved the dl* function definitions and
@@ -268,7 +265,6 @@ load_core_modules(int warn)
     char module_name[MAXPATHLEN];
     int i;
 
-
     for (i = 0; core_module_table[i]; i++) {
         rb_snprintf(module_name, sizeof(module_name), "%s/%s%s", MODPATH,
                     core_module_table[i], SHARED_SUFFIX);
@@ -322,7 +318,6 @@ load_one_module(const char *path, int coremodule)
     return -1;
 }
 
-
 /* load a module .. */
 static int
 mo_modload(struct Client *client_p, struct Client *source_p, int parc, const char **parv)
@@ -372,7 +367,6 @@ do_modload(struct Client *source_p, const char *module)
 
     return 0;
 }
-
 
 /* unload a module .. */
 static int
@@ -609,8 +603,6 @@ do_modrestart(struct Client *source_p)
     return 0;
 }
 
-
-
 #ifndef RTLD_NOW
 #define RTLD_NOW RTLD_LAZY	/* openbsd deficiency */
 #endif
@@ -635,7 +627,6 @@ static char unknown_ver[] = "<unknown>";
 /* This file contains the core functions to use dynamic libraries.
  * -TimeMr14C
  */
-
 
 #ifdef HAVE_MACH_O_DYLD_H
 /*
@@ -753,7 +744,6 @@ dlsym(void *myModule, char *mySymbolName)
 #endif
 #endif
 
-
 /*
  * HPUX dl compat functions
  */
@@ -850,7 +840,6 @@ unload_one_module(const char *name, int warn)
     return 0;
 }
 
-
 /*
  * load_a_module()
  *
@@ -885,7 +874,6 @@ load_a_module(const char *path, int warn, int core)
         rb_free(mod_basename);
         return -1;
     }
-
 
     /*
      * _mheader is actually a struct mapi_mheader_*, but mapi_version

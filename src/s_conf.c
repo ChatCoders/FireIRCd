@@ -387,7 +387,6 @@ verify_access(struct Client *client_p, const char *username)
     return NOT_AUTHORISED;
 }
 
-
 /*
  * add_ip_limit
  *
@@ -504,7 +503,6 @@ attach_iline(struct Client *client_p, struct ConfItem *aconf)
         else if(ConfMaxIdent(aconf) && ident_count >= ConfMaxIdent(aconf))
             return (TOO_MANY_IDENT);
     }
-
 
     return (attach_conf(client_p, aconf));
 }
@@ -1332,7 +1330,6 @@ reorganise_temp_kd(void *list)
     }
 }
 
-
 /* const char* get_oper_name(struct Client *client_p)
  * Input: A client to find the active oper{} name for.
  * Output: The nick!user@host{oper} of the oper.
@@ -1587,7 +1584,6 @@ clear_out_old_conf(void)
     rb_free(ConfigFileEntry.sasl_service);
     ConfigFileEntry.sasl_service = NULL;
 
-
     RB_DLINK_FOREACH_SAFE(ptr, next_ptr, service_list.head) {
         rb_free(ptr->data);
         rb_dlinkDestroy(ptr, &service_list);
@@ -1611,7 +1607,6 @@ clear_out_old_conf(void)
 
     /* OK, that should be everything... */
 }
-
 
 /*
  * conf_add_class_to_conf

@@ -49,12 +49,10 @@ struct Message put_msgtab = {
     {{mr_dumb_proxy, 0}, mg_ignore, mg_ignore, mg_ignore, mg_ignore, mg_ignore}
 };
 
-
 mapi_clist_av1 post_clist[] = {
     &post_msgtab, &get_msgtab, &put_msgtab, NULL
 };
 DECLARE_MODULE_AV1(post, NULL, NULL, post_clist, NULL, NULL, "$Revision: 498 $");
-
 
 /*
 ** mr_dumb_proxy

@@ -333,7 +333,6 @@ mo_masktrace(struct Client *client_p, struct Client *source_p, int parc,
     } else
         gecos = NULL;
 
-
     if((hostname = strchr(name, '@')) == NULL) {
         sendto_one_notice(source_p, ":Invalid parameters");
         return 0;

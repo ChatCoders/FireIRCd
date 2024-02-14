@@ -31,7 +31,6 @@
  *
  */
 
-
 #include "stdinc.h"
 #include "client.h"
 #include "hash.h"		/* for find_client() */
@@ -43,7 +42,6 @@
 #include "monitor.h"
 #include "s_newconf.h"
 #include "whowas.h"
-
 
 static int me_forcenick(struct Client *, struct Client *, int, const char **);
 static int mo_forcenick(struct Client *, struct Client *, int, const char **);
@@ -240,7 +238,6 @@ clean_nick(const char *nick)
 
     return 1;
 }
-
 
 static int
 change_nick(struct Client *client_p, const char *newnick)

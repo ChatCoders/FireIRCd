@@ -33,7 +33,6 @@
 #include "scache.h"
 #include "s_conf.h"
 
-
 /*
  * ircd used to store full servernames in anUser as well as in the
  * whowas info.  there can be some 40k such structures alive at any
@@ -45,7 +44,6 @@
  * reworked to serve for flattening/delaying /links also
  * -- jilles
  */
-
 
 #define SCACHE_HASH_SIZE 257
 

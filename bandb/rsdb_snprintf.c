@@ -539,7 +539,6 @@ rs_vsnprintf(char *dest, const size_t bytes, const char *format, va_list args)
                         exit(1);
                     }
 
-
             }	/* if (ch == 'l') */
 
             if(ch != '%') {

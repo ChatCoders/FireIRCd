@@ -43,7 +43,6 @@
 #include "chmode.h"
 #include "irc_dictionary.h"
 
-
 /* bitmasks for error returns, so we send once per call */
 #define SM_ERR_NOTS             0x00000001	/* No TS on channel */
 #define SM_ERR_NOOPS            0x00000002	/* No chan ops */
@@ -257,7 +256,6 @@ add_id(struct Client *source_p, struct Channel *chptr, const char *banid,
                 return 0;
         }
     }
-
 
     if(IsPerson(source_p))
         rb_sprintf(who, "%s!%s@%s", source_p->name, source_p->username, source_p->host);
@@ -633,7 +631,6 @@ chm_hidden(struct Client *source_p, struct Channel *chptr,
 
     if(MyClient(source_p) && (++mode_limit_simple > MAXMODES_SIMPLE))
         return;
-
 
     /* setting + */
     if((dir == MODE_ADD) && !(chptr->mode.mode & mode_type)) {
@@ -1451,7 +1448,6 @@ chm_voice(struct Client *source_p, struct Channel *chptr,
         mstptr->flags &= ~CHFL_VOICE;
     }
 }
-
 
 void
 chm_limit(struct Client *source_p, struct Channel *chptr,

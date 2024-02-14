@@ -338,7 +338,6 @@ initialize_server_capabs(void)
     default_server_capabs &= ~CAP_ZIP;
 }
 
-
 /*
  * write_pidfile
  *
@@ -562,8 +561,6 @@ main(int argc, char *argv[])
         exit(EXIT_SUCCESS);
     }
 
-
-
     setup_signals();
 
     if (testing_conf)
@@ -662,10 +659,8 @@ main(int argc, char *argv[])
     }
     rb_strlcpy(me.info, ServerInfo.description, sizeof(me.info));
 
-
     /* Add in masks */
     rb_strlcpy(me.mname, ServerInfo.mask_name, sizeof(me.mname));
-
 
     if(ServerInfo.ssl_cert != NULL && ServerInfo.ssl_private_key != NULL) {
         /* just do the rb_setup_ssl_server to validate the config */

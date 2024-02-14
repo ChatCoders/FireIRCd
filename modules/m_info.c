@@ -980,7 +980,6 @@ send_conf_options(struct Client *source_p)
         }
     }			/* forloop */
 
-
     /* Don't send oper_only_umodes...it's a bit mask, we will have to decode it
      ** in order for it to show up properly to opers who issue INFO
      */

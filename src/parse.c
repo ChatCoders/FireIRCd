@@ -60,7 +60,6 @@ static char buffer[1024];
 
 /* turn a string into a parc/parv pair */
 
-
 static inline int
 string_to_array(char *string, char **parv)
 {
@@ -527,8 +526,6 @@ remove_unknown(struct Client *client_p, char *lsender, char *lbuffer)
                        get_id(&me, client_p), lsender, me.name);
     }
 }
-
-
 
 /*
  *

@@ -37,7 +37,6 @@ mapi_clist_av1 mkpasswd_clist[] = { &mkpasswd_msgtab, NULL };
 
 DECLARE_MODULE_AV1(mkpasswd, NULL, NULL, mkpasswd_clist, NULL, NULL, "$Revision$");
 
-
 /* m_mkpasswd - mkpasswd message handler
  *	parv[1] = password
  *	parv[2] = type

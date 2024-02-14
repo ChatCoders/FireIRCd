@@ -31,7 +31,6 @@
  *
  */
 
-
 #include "stdinc.h"
 #include "client.h"
 #include "hash.h"		/* for find_client() */
@@ -42,12 +41,10 @@
 #include "modules.h"
 #include "s_newconf.h"
 
-
 static int mo_forcepart(struct Client *client_p, struct Client *source_p, int parc, const char *parv[]);
 static int me_forcepart(struct Client *client_p, struct Client *source_p, int parc, const char *parv[]);
 
 static void forcepart_channels(struct Client *client_p, struct Client *source_p, struct Client *target_p, const char *channels, const char *reason);
-
 
 struct Message forcepart_msgtab = {
     "FORCEPART", 0, 0, 0, MFLG_SLOW,

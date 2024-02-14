@@ -1023,7 +1023,6 @@ serv_connect_resolved(struct Client *client_p)
 #endif
          (server_p->aftype == AF_INET ? "IPv4" : "?"), vhoststr);
 
-
     if(ServerConfSSL(server_p))
         rb_connect_tcp(client_p->localClient->F, (struct sockaddr *)&client_p->localClient->ip,
                        (struct sockaddr *) &myipnum,

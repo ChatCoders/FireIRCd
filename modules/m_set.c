@@ -62,7 +62,6 @@ struct SetStruct {
      * eg:  1, 1 == char and int args */
 };
 
-
 static void quote_adminstring(struct Client *, const char *, int);
 static void quote_autoconn(struct Client *, const char *, int);
 static void quote_autoconnall(struct Client *, const char *, int);
@@ -78,7 +77,6 @@ static void quote_splitnum(struct Client *, const char *, int);
 static void quote_splitusers(struct Client *, const char *, int);
 
 static void list_quote_commands(struct Client *);
-
 
 /*
  * If this ever needs to be expanded to more than one arg of each
@@ -108,7 +106,6 @@ static struct SetStruct set_cmd_table[] = {
     /* -------------------------------------------------------- */
     {(char *) 0, (void (*)(struct Client *, const char *, int)) 0, 0, 0}
 };
-
 
 /*
  * list_quote_commands() sends the client all the available commands.
@@ -162,7 +159,6 @@ quote_autoconnall(struct Client *source_p, const char *arg, int newval)
                           GlobalSetOptions.autoconn);
     }
 }
-
 
 /* SET FLOODCOUNT */
 static void

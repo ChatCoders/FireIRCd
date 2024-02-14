@@ -42,7 +42,6 @@ static rb_dlink_list throttle_list;
 static rb_patricia_tree_t *throttle_tree;
 static void throttle_expires(void *unused);
 
-
 typedef struct _reject_data {
     rb_dlink_node rnode;
     time_t time;
@@ -370,4 +369,3 @@ throttle_expires(void *unused)
         rb_patricia_remove(throttle_tree, pnode);
     }
 }
-

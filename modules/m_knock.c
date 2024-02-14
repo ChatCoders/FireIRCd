@@ -111,7 +111,6 @@ m_knock(struct Client *client_p, struct Client *source_p, int parc, const char *
         return 0;
     }
 
-
     if(MyClient(source_p)) {
         /* don't allow a knock if the user is banned */
         if(is_banned(chptr, source_p, NULL, NULL, NULL) == CHFL_BAN ||
@@ -157,4 +156,3 @@ m_knock(struct Client *client_p, struct Client *source_p, int parc, const char *
                   ":%s KNOCK %s", source_p->name, name);
     return 0;
 }
-

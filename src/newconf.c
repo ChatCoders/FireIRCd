@@ -113,7 +113,6 @@ find_top_conf(const char *name)
     return NULL;
 }
 
-
 struct ConfEntry *
 find_conf_item(const struct TopConf *top, const char *name)
 {
@@ -530,7 +529,6 @@ conf_end_oper(struct TopConf *tc)
         return 0;
     }
 
-
     if (!yy_oper->privset)
         yy_oper->privset = privilegeset_get("default");
 
@@ -787,7 +785,6 @@ conf_set_class_number_per_ip(void *data)
 {
     yy_class->max_local = *(unsigned int *) data;
 }
-
 
 static void
 conf_set_class_number_per_ip_global(void *data)
@@ -1855,7 +1852,6 @@ conf_set_fakechannel_users_max(void *data)
     yy_fakechannel->users_max = users_max;
 }
 
-
 static void
 conf_set_blacklist_host(void *data)
 {
@@ -1992,7 +1988,6 @@ cleanup_bl:
 
 /* public functions */
 
-
 void
 conf_report_error(const char *fmt, ...)
 {
@@ -2086,7 +2081,6 @@ conf_call_set(struct TopConf *tc, char *item, conf_parm_t * value)
 
     cp = value->v.list;
 
-
     if(CF_TYPE(value->v.list->type) != CF_TYPE(cf->cf_type)) {
         /* if it expects a string value, but we got a yesno,
          * convert it back
@@ -2144,7 +2138,6 @@ conf_call_set(struct TopConf *tc, char *item, conf_parm_t * value)
             break;
         }
     }
-
 
     return 0;
 }

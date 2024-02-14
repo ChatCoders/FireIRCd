@@ -70,7 +70,6 @@ init_bandb(void)
     }
 }
 
-
 static int
 start_bandb(void)
 {
@@ -98,7 +97,6 @@ start_bandb(void)
         }
         bandb_path = rb_strdup(fullpath);
     }
-
 
     bandb_helper = rb_helper_start("bandb", bandb_path, bandb_parse, bandb_restart_cb);
 

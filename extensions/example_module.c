@@ -80,7 +80,6 @@ struct Message test_msgtab = {
  * For further details, see include/msg.h
  */
 
-
 /* The mapi_clist_av1 indicates which commands (struct Message)
  * should be loaded from the module. The list should be terminated
  * by a NULL.
@@ -146,7 +145,6 @@ DECLARE_MODULE_AV1(
     "$Revision: 3161 $");
 
 /* Any of the above arguments can be NULL to indicate they aren't used. */
-
 
 /*
  * mr_test

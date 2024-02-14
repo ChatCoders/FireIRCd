@@ -303,7 +303,6 @@ find_listener(struct rb_sockaddr_storage *addr)
     return last_closed;
 }
 
-
 /*
  * add_listener- create a new listener
  * port - the port number to listen on
@@ -454,7 +453,6 @@ add_connection(struct Listener *listener, rb_fde_t *F, struct sockaddr *sai, str
                       sizeof(new_client->sockhost));
 
     rb_strlcpy(new_client->host, new_client->sockhost, sizeof(new_client->host));
-
 
     if (listener->ssl) {
         rb_fde_t *xF[2];

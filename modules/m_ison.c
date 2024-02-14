@@ -51,7 +51,6 @@ DECLARE_MODULE_AV1(ison, NULL, NULL, ison_clist, NULL, NULL, "$Revision: 254 $")
 static char buf[BUFSIZE];
 static char buf2[BUFSIZE];
 
-
 /*
  * m_ison added by Darren Reed 13/8/91 to act as an efficent user indicator
  * with respect to cpu/bandwidth used. Implemented for NOTIFY feature in

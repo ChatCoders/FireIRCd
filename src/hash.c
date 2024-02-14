@@ -45,7 +45,6 @@
 static rb_dlink_list clientbyconnidTable[CLI_CONNID_MAX];
 static rb_dlink_list clientbyzconnidTable[ZCONNID_MAX];
 
-
 rb_dlink_list *clientTable;
 rb_dlink_list *channelTable;
 rb_dlink_list *idTable;
@@ -741,7 +740,6 @@ output_hash(struct Client *source_p, const char *name, int length, int *counts, 
                            i, counts[i]);
     }
 }
-
 
 static void
 count_hash(struct Client *source_p, rb_dlink_list *table, int length, const char *name)

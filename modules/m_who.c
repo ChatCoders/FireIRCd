@@ -79,7 +79,6 @@ static void do_who(struct Client *source_p,
                    struct Client *target_p, struct membership *msptr,
                    struct who_format *fmt);
 
-
 /*
 ** m_who
 **      parv[1] = nickname mask list
