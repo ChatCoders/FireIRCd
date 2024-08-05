@@ -26,13 +26,11 @@
 #include "stdinc.h"
 
 #ifdef HAVE_LIBCRYPTO
-#include <openssl/pem.h>
-#include <openssl/rand.h>
-#include <openssl/rsa.h>
-#include <openssl/md5.h>
-#include <openssl/bn.h>
-#include <openssl/evp.h>
 #include <openssl/err.h>
+#include <openssl/evp.h>
+#include <openssl/pem.h>
+#include <openssl/rsa.h>
+#include <openssl/sha.h>
 #endif
 
 #include "client.h"
@@ -48,6 +46,7 @@
 #include "s_user.h"
 #include "cache.h"
 #include "s_newconf.h"
+#include "stdbool.h"
 
 #define CHALLENGE_WIDTH BUFSIZE - (NICKLEN + HOSTLEN + 12)
 #define CHALLENGE_EXPIRES	180	/* 180 seconds should be more than long enough */
@@ -82,7 +81,11 @@ struct Message challenge_msgtab = {
 mapi_clist_av1 challenge_clist[] = { &challenge_msgtab, NULL };
 DECLARE_MODULE_AV1(challenge, NULL, NULL, challenge_clist, NULL, NULL, "$Revision: 3161 $");
 
-static int generate_challenge(char **r_challenge, char **r_response, RSA * key);
+#if (OPENSSL_VERSION_NUMBER >= 0x30000000L)
+static int generate_challenge(char **r_challenge, unsigned char **r_response, EVP_PKEY *key);
+#else
+static int generate_challenge(char **r_challenge, unsigned char **r_response, RSA *key);
+#endif
 
 static void
 cleanup_challenge(struct Client *target_p)
@@ -267,45 +270,92 @@ m_challenge(struct Client *client_p, struct Client *source_p, int parc, const ch
 }
 
 static int
-generate_challenge(char **r_challenge, char **r_response, RSA * rsa)
+#if (OPENSSL_VERSION_NUMBER >= 0x30000000L)
+generate_challenge(char **r_challenge, unsigned char **r_response, EVP_PKEY *key)
+#else
+generate_challenge(char **r_challenge, unsigned char **r_response, RSA *key)
+#endif
 {
-    SHA_CTX ctx;
-    unsigned char secret[CHALLENGE_SECRET_LENGTH], *tmp;
-    unsigned long length;
+    unsigned char secret[CHALLENGE_SECRET_LENGTH];
+    unsigned char *tmp = NULL;
     unsigned long e = 0;
     unsigned long cnt = 0;
-    int ret;
+    bool retval = false;
+    size_t length;
+    EVP_MD_CTX *mctx = NULL;
+#if (OPENSSL_VERSION_NUMBER >= 0x30000000L)
+    EVP_PKEY_CTX *pctx = NULL;
+#endif
 
-    if(!rsa)
+    if(!rb_get_random(secret, sizeof secret))
+        return false;
+
+    if((*r_response = rb_malloc(SHA_DIGEST_LENGTH)) == NULL)
         return -1;
-    if(rb_get_random(secret, CHALLENGE_SECRET_LENGTH)) {
-        SHA1_Init(&ctx);
-        SHA1_Update(&ctx, (uint8_t *)secret, CHALLENGE_SECRET_LENGTH);
-        *r_response = malloc(SHA_DIGEST_LENGTH);
-        SHA1_Final((uint8_t *)*r_response, &ctx);
+    if((mctx = EVP_MD_CTX_new()) == NULL)
+        goto fail;
 
-        length = RSA_size(rsa);
-        tmp = rb_malloc(length);
-        ret = RSA_public_encrypt(CHALLENGE_SECRET_LENGTH, secret, tmp, rsa, RSA_PKCS1_OAEP_PADDING);
+    if(EVP_DigestInit(mctx, EVP_sha1()) < 1)
+        goto fail;
 
-        if(ret >= 0) {
-            *r_challenge = (char *)rb_base64_encode(tmp, ret);
-            rb_free(tmp);
-            return 0;
-        }
+    if(EVP_DigestUpdate(mctx, secret, sizeof secret) < 1)
+        goto fail;
 
-        rb_free(tmp);
-        rb_free(*r_response);
-        *r_response = NULL;
-    }
+    if(EVP_DigestFinal(mctx, *r_response, NULL) < 1)
+        goto fail;
 
-    ERR_load_crypto_strings();
+#if (OPENSSL_VERSION_NUMBER >= 0x30000000L)
+    if((length = (size_t) EVP_PKEY_get_size(key)) < 1)
+        goto fail;
+
+    if((tmp = rb_malloc(length)) == NULL)
+        goto fail;
+
+    if((pctx = EVP_PKEY_CTX_new(key, NULL)) == NULL)
+        goto fail;
+
+    if(EVP_PKEY_encrypt_init(pctx) < 1)
+        goto fail;
+
+    if(EVP_PKEY_CTX_set_rsa_padding(pctx, RSA_PKCS1_OAEP_PADDING) < 1)
+        goto fail;
+
+    if(EVP_PKEY_encrypt(pctx, tmp, &length, secret, sizeof secret) < 1)
+        goto fail;
+#else
+    if((length = (size_t) RSA_size(key)) < 1)
+        goto fail;
+
+    if((tmp = rb_malloc(length)) == NULL)
+        goto fail;
+
+    if(RSA_public_encrypt(sizeof secret, secret, tmp, key, RSA_PKCS1_OAEP_PADDING) < 1)
+        goto fail;
+#endif
+
+    if((*r_challenge = (char *) rb_base64_encode(tmp, (int) length)) == NULL)
+        goto fail;
+
+    retval = true;
+    goto done;
+
+fail:
     while ((cnt < 100) && (e = ERR_get_error())) {
-        ilog(L_MAIN, "SSL error: %s", ERR_error_string(e, 0));
+        ilog(L_MAIN, "OpenSSL Error (CHALLENGE): %s", ERR_error_string(e, 0));
         cnt++;
     }
 
-    return (-1);
+    rb_free(*r_response);
+    *r_response = NULL;
+
+done:
+    EVP_MD_CTX_free(mctx);
+#if (OPENSSL_VERSION_NUMBER >= 0x30000000L)
+    EVP_PKEY_CTX_free(pctx);
+#endif
+    rb_free(tmp);
+
+    return retval;
 }
 
 #endif /* HAVE_LIBCRYPTO */

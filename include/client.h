@@ -232,7 +232,7 @@ struct LocalUser
 	char *passwd;
 	char *auth_user;
 	char *opername; /* name of operator{} block being used or tried (challenge) */
-	char *challenge;
+	unsigned char *challenge;
 	char *fullcaps;
 	char *cipher_string;
 
