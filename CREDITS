@@ -1,8 +1,8 @@
 $Id: CREDITS 3133 2007-01-21 15:38:16Z jilles $
  
-ChamberIRCd is a fork of the ShadowIRCD/elemental-ircd project created by Ryan Blake and continued by SnowFields
+FireIRCd is a fork of the ShadowIRCD/elemental-ircd project created by Ryan Blake and continued by SnowFields
  
-The ChamberIRCd team is listed in nick-alphabetical order:
+The FireIRCd team is listed in nick-alphabetical order:
 
 Snowfields, Craig Saunders <craig -at- snowfields.me> 
 Ryan, Ryan Blake <ryan.blake182 -at- gmail.com>
@@ -57,5 +57,5 @@ ThaPrince, Jon Christopherson <jon -at- vile.com>
 twincest, River Tarnell <river -at- attenuate.org>
 w00t, Robin Burchell <surreal.w00t -at- gmail.com>
  
-Visit the ChamberIRCd repo at: https://github.com/ChatCoders/ChamberIRCd
-Visit us on IRC at: irc.chamberIRC.net #devlounge
+Visit the FireIRCd repo at: https://github.com/ChatCoders/FireIRCd
+Visit us on IRC at: irc.vibetalk.net #FireIRCd

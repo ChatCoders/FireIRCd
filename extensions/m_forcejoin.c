@@ -1,5 +1,5 @@
 /*
- * SIRCd: the ircd for those who like unreal prefixes.
+ * FireIRCd: the ircd for those who like unreal prefixes.
  * m_forcejoin.c: Force joins a user
  *
  * Copyright (C) 2010 Elizabeth Jennifer Myers. All rights reserved.

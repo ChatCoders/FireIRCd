@@ -1,5 +1,5 @@
 /*
- * ChamberIRCd: the ircd for those who like unreal prefixes.
+ * FireIRCd: the ircd for those who like unreal prefixes.
  * m_forcenick.c: Forces a user's nickname to change
  *
  * Copyright (C) 2010 Elizabeth Jennifer Myers. All rights reserved.

@@ -11,7 +11,7 @@ dnl Sneaky way to get an Id tag into the configure script
 AC_COPYRIGHT([2018 SnowFields <bsd -at- snowfields.me>])
 AC_COPYRIGHT([2018 sIRCd <ryan.blake182 -at- gmail.com>])
 
-AC_INIT([ChamberIRCd],[1.0.2])
+AC_INIT([FireIRCd],[1.0])
 
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADER(include/setup.h)
@@ -1247,4 +1247,4 @@ Configuration:
 	Nickname length    : $NICKLEN
 	Topic length       : $TOPICLEN
 
-Use (g)make to compile ChamberIRCd, then (g)make install to install it."
+Use (g)make to compile FireIRCd, then (g)make install to install it."
