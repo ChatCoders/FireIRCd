@@ -28,7 +28,7 @@ directions.
 
 ## Support
 
-The official channel for ChamberIRCd is `#devlounge` on
-`irc.chamberIRC.net`. 
+The official channel for ChamberIRCd is `#ChamberIRC` on
+`irc.vibetalk.net`. 
 
 Please use ***GitHub issue tracker*** for any issues
