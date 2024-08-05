@@ -1,6 +1,6 @@
 /*
  * FireIRCd: the ircd for discerning transsexual quilting bees.
- * m_forcequit.c: Forces a user to quit IRC. (debugged and fixed for ChamberIRCd)
+ * m_forcequit.c: Forces a user to quit IRC. (debugged and fixed for FireIRCd)
  *
  * Copyright (C) 2010 Elizabeth Jennifer Myers. All rights reserved.
  *

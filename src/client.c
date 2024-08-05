@@ -920,7 +920,7 @@ free_exited_clients(void *unused)
                                            target_p->name, (unsigned int) target_p->status,
                                            target_p->flags, target_p->flags2, target_p->handler);
                     sendto_realops_snomask(SNO_GENERAL, L_ALL,
-                                           "Please report this to the ChamberIRCd developers!");
+                                           "Please report this to the FireIRCd developers!");
                     found++;
                 }
             }
@@ -1087,7 +1087,7 @@ exit_aborted_clients(void *unused)
                                        abt->client->name, (unsigned int) abt->client->status,
                                        abt->client->flags, abt->client->flags2, abt->client->handler);
                 sendto_realops_snomask(SNO_GENERAL, L_ALL,
-                                       "Please report this to the ChamberIRCd developers!");
+                                       "Please report this to the FireIRCd developers!");
                 continue;
             }
         }
