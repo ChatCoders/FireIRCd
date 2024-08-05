@@ -1,12 +1,12 @@
-# ChamberIRCd
-[![CI](https://github.com/ChatCoders/ChamberIRCd/actions/workflows/ci.yml/badge.svg)](https://github.com/ChatCoders/ChamberIRCd/actions/workflows/ci.yml)
+# FireIRCd
+[![CI](https://github.com/ChatCoders/FireIRCd/actions/workflows/ci.yml/badge.svg)](https://github.com/ChatCoders/FireIRCd/actions/workflows/ci.yml)
 
-**ChamberIRCd** is a high performance, lightweight, and scalable
+**FireIRCd** is a high performance, lightweight, and scalable
 IRC daemon. It is a fork of the now-defunct ShadowIRCD and seeks to continue in
 the direction ShadowIRCD was headed.
 
 **ChatIRCd**
-some of the coding from ChatIRCd has been used on ChamberIRCd. Credit to Ben (www.chatlounge.net)
+some of the coding from ChatIRCd has been used on FireIRCd. Credit to Ben (www.chatlounge.net)
 
 ## Supported Platforms
 
@@ -28,7 +28,7 @@ directions.
 
 ## Support
 
-The official channel for ChamberIRCd is `#ChamberIRC` on
+The official channel for FireIRCd is `#FireIRCd` on
 `irc.vibetalk.net`. 
 
 Please use ***GitHub issue tracker*** for any issues
