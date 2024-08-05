@@ -1,7 +1,7 @@
 # FireIRCd Changes
 
 ## Changes since Version 1.0
-- [-] - remove ziplinks
+- [X] - added OpenSSL 3.0 compatibility and removed OpenSSL 1.1.0 compatibility due to EOL
 - [X] - Remove local MOTD ratelimit
 - [X] - added DNSBL checking for web clients
 - [X] - accept expired certificates
