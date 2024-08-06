@@ -761,6 +761,7 @@ enable_fhs_paths
 enable_ipv6
 enable_openssl
 with_shared_sqlite
+enable_hyperscan
 with_zlib_path
 enable_zlib
 enable_ports
@@ -1420,6 +1421,7 @@ Optional Features:
   --enable-ipv6           Enable IPv6 support
   --enable-openssl=DIR    Enable OpenSSL support (DIR optional).
   --disable-openssl       Disable OpenSSL support.
+  --disable-hyperscan     Disable hyperscan support
   --disable-zlib          Disable ziplinks support
   --enable-ports          Force solaris I/O ports subsystem usage.
   --enable-poll           Force poll() usage.
@@ -8370,6 +8372,31 @@ SQLITE_LD="$SQLITE_LIBS"
 SQLITE_INCLUDES="$SQLITE_CFLAGS"
 
 
+
+
+# Check whether --enable-hyperscan was given.
+if test ${enable_hyperscan+y}
+then :
+  enableval=$enable_hyperscan; hyperscan=$enableval
+else case e in #(
+  e) hyperscan=yes ;;
+esac
+fi
+
+
+if test "$hyperscan" = yes; then
+
+#CPPFLAGS="$CPPFLAGS $(pkg-config --cflags libhs)"
+IRC_CFLAGS="$IRC_CFLAGS $(pkg-config --cflags libhs)"
+LIBS="$LIBS $(pkg-config --libs libhs)"
+ac_fn_c_check_header_compile "$LINENO" "hs_common.h" "ac_cv_header_hs_common_h" "$ac_includes_default"
+if test "x$ac_cv_header_hs_common_h" = xyes
+then :
+
+fi
+
+
+fi
 
 
 # Check whether --with-zlib-path was given.
