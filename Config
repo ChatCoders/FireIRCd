@@ -79,12 +79,6 @@ usessl = promptYesNo("SSL? (y/n)")
 
 print("")
 
-print("Would you like to use Hyperscan? (Recommended)")
-
-hyperscan = promptYesNo("Hyperscan? (y/n)")
-
-print("")
-
 print("Would you like to enable shared sqlite?")
 print("ideal for low-power ARM boards and budget VPSes)")
 
@@ -104,11 +98,6 @@ if usessl:
     configflags.append("--enable-openssl")
 else:
     configflags.append("--disable-openssl")
-
-if hyperscan:
-    configflags.append("--enable-hyperscan")
-else:
-    configflags.append("--disable-hyperscan")
 
 if not sqlite:
     configflags.append("")
@@ -142,7 +131,7 @@ sure your install is tailored to your needs. After that, run %s/ircd/bin/ircd
 and start to connect clients and servers as you need.
 
 If you have any problems, please check the documentation in the doc/ folder
-of the source repository. If problems persist please stop by #FireIRCd
+of the source repository. If problems persist please stop by #devlounge
 on irc.vibetalk.net and ask. Running FireIRCd on large networks is not
 recommended (Not sure how stable it is).""" %\
     (installloc2, installloc2, installloc2))
