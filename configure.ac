@@ -1252,6 +1252,7 @@ echo "
 Configuration:
 	Install directory  : $prefix
 
+	Hyperscan	   : $hyperscan
 	Ziplinks           : $zlib
 	OpenSSL            : $openssl
 	Socket Engine      : $SELECT_TYPE
